@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../constants/app_constants.dart';
 import '../../models/transaction_model.dart';
-import '../../models/budget_model.dart';
 import '../../providers/transaction_provider.dart';
 import '../../providers/category_provider.dart';
 import '../../providers/budget_provider.dart';
@@ -108,9 +107,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     } catch (e) {
       debugPrint('Error picking image: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Gagal mengambil gambar')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Gagal mengambil gambar')));
       }
     }
   }
@@ -124,7 +123,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
         return;
       }
 
-      final amount = double.tryParse(_amountController.text.replaceAll(RegExp(r'[Rp\s.]'), '')) ?? 0.0;
+      final amount =
+          double.tryParse(
+            _amountController.text.replaceAll(RegExp(r'[Rp\s.]'), ''),
+          ) ??
+          0.0;
 
       if (amount <= 0) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -136,12 +139,21 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       // Validasi budget untuk pengeluaran
       if (_transactionType == TransactionType.expense) {
         final budgetProvider = context.read<BudgetProvider>();
-        final budget = await budgetProvider.getBudgetByCategory(_selectedCategory!);
+        final budget = await budgetProvider.getBudgetByCategory(
+          _selectedCategory!,
+        );
 
         if (budget != null) {
           // Hitung total pengeluaran bulan ini untuk kategori ini
-          final currentMonth = DateTime(_selectedDate.year, _selectedDate.month, 1);
-          final currentExpense = await budgetProvider.getExpenseByCategory(_selectedCategory!, currentMonth);
+          final currentMonth = DateTime(
+            _selectedDate.year,
+            _selectedDate.month,
+            1,
+          );
+          final currentExpense = await budgetProvider.getExpenseByCategory(
+            _selectedCategory!,
+            currentMonth,
+          );
 
           // Cek apakah pengeluaran baru akan melebihi budget
           if (currentExpense + amount > budget.amountLimit) {
@@ -184,9 +196,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_transactionType == TransactionType.income
-            ? 'Tambah Pemasukan'
-            : 'Tambah Pengeluaran'),
+        title: Text(
+          _transactionType == TransactionType.income
+              ? 'Tambah Pemasukan'
+              : 'Tambah Pengeluaran',
+        ),
       ),
       body: Form(
         key: _formKey,
@@ -230,14 +244,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   });
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                    vertical: screenWidth * 0.04,
-                  ),
+                  padding: EdgeInsets.symmetric(vertical: screenWidth * 0.04),
                   decoration: BoxDecoration(
                     color: _transactionType == TransactionType.income
                         ? AppConstants.successColor
                         : Colors.transparent,
-                    borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+                    borderRadius: BorderRadius.circular(
+                      AppConstants.radiusMedium,
+                    ),
                     border: Border.all(
                       color: _transactionType == TransactionType.income
                           ? AppConstants.successColor
@@ -267,14 +281,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   });
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                    vertical: screenWidth * 0.04,
-                  ),
+                  padding: EdgeInsets.symmetric(vertical: screenWidth * 0.04),
                   decoration: BoxDecoration(
                     color: _transactionType == TransactionType.expense
                         ? AppConstants.errorColor
                         : Colors.transparent,
-                    borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+                    borderRadius: BorderRadius.circular(
+                      AppConstants.radiusMedium,
+                    ),
                     border: Border.all(
                       color: _transactionType == TransactionType.expense
                           ? AppConstants.errorColor
@@ -311,9 +325,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           children: [
             Text(
               'Nominal',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontSize: screenWidth * 0.04,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontSize: screenWidth * 0.04),
             ),
             SizedBox(height: screenWidth * 0.02),
             TextFormField(
@@ -329,9 +343,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 contentPadding: EdgeInsets.all(screenWidth * 0.03),
               ),
               style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    fontSize: screenWidth * 0.08,
-                  ),
+                fontWeight: FontWeight.bold,
+                fontSize: screenWidth * 0.08,
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Masukkan nominal';
@@ -355,15 +369,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           children: [
             Text(
               'Kategori',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontSize: screenWidth * 0.04,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontSize: screenWidth * 0.04),
             ),
             SizedBox(height: screenWidth * 0.04),
             FutureBuilder(
-              future: context
-                  .read<CategoryProvider>()
-                  .getCategoriesByType(_transactionType),
+              future: context.read<CategoryProvider>().getCategoriesByType(
+                _transactionType,
+              ),
               builder: (context, AsyncSnapshot<List> snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -380,16 +394,19 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   children: categories.map((category) {
                     final isSelected = _selectedCategory == category.name;
                     return FilterChip(
-                      label: Text(category.name, style: TextStyle(
-                        fontSize: screenWidth * 0.032,
-                      )),
+                      label: Text(
+                        category.name,
+                        style: TextStyle(fontSize: screenWidth * 0.032),
+                      ),
                       selected: isSelected,
                       onSelected: (selected) {
                         setState(() {
                           _selectedCategory = category.name;
                         });
                       },
-                      selectedColor: AppConstants.primaryOrange.withOpacity(0.2),
+                      selectedColor: AppConstants.primaryOrange.withOpacity(
+                        0.2,
+                      ),
                       checkmarkColor: AppConstants.primaryOrange,
                     );
                   }).toList(),
@@ -444,9 +461,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
           children: [
             Text(
               'Bukti Transaksi (Opsional)',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontSize: screenWidth * 0.04,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontSize: screenWidth * 0.04),
             ),
             SizedBox(height: screenWidth * 0.04),
             if (_imagePath != null) ...[
@@ -460,7 +477,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   errorBuilder: (context, error, stackTrace) {
                     return SizedBox(
                       height: screenWidth * 0.5,
-                      child: Center(child: Text('Gambar tidak dapat dimuat', style: TextStyle(fontSize: screenWidth * 0.035))),
+                      child: Center(
+                        child: Text(
+                          'Gambar tidak dapat dimuat',
+                          style: TextStyle(fontSize: screenWidth * 0.035),
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -469,7 +491,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             ],
             OutlinedButton.icon(
               onPressed: _pickImage,
-              icon: Icon(_imagePath == null ? Icons.add_a_photo : Icons.change_circle),
+              icon: Icon(
+                _imagePath == null ? Icons.add_a_photo : Icons.change_circle,
+              ),
               label: Text(_imagePath == null ? 'Tambah Bukti' : 'Ganti Bukti'),
               style: OutlinedButton.styleFrom(
                 padding: EdgeInsets.symmetric(
@@ -491,11 +515,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       child: ElevatedButton(
         onPressed: _saveTransaction,
         style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(
-            vertical: screenWidth * 0.04,
-          ),
+          padding: EdgeInsets.symmetric(vertical: screenWidth * 0.04),
         ),
-        child: Text('Simpan Transaksi', style: TextStyle(fontSize: screenWidth * 0.04)),
+        child: Text(
+          'Simpan Transaksi',
+          style: TextStyle(fontSize: screenWidth * 0.04),
+        ),
       ),
     );
   }
@@ -512,8 +537,9 @@ class _CurrencyInputFormatter extends TextInputFormatter {
     }
 
     final value = int.tryParse(newValue.text) ?? 0;
-    final formatted = CurrencyFormatter.formatCurrency(value.toDouble())
-        .replaceAll('Rp ', '');
+    final formatted = CurrencyFormatter.formatCurrency(
+      value.toDouble(),
+    ).replaceAll('Rp ', '');
 
     return newValue.copyWith(
       text: formatted,

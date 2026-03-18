@@ -18,20 +18,22 @@ class GalleryScreen extends StatefulWidget {
 class _GalleryScreenState extends State<GalleryScreen> {
   String _selectedFilter = 'Semua';
   String? _selectedYear;
-  List<String> _filters = ['Hari Ini', 'Minggu Ini', 'Bulan Ini', 'Tahun Ini', 'Semua'];
+  final List<String> _filters = [
+    'Hari Ini',
+    'Minggu Ini',
+    'Bulan Ini',
+    'Tahun Ini',
+    'Semua',
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Galeri Bukti Transaksi'),
-      ),
+      appBar: AppBar(title: const Text('Galeri Bukti Transaksi')),
       body: Column(
         children: [
           _buildFilterChips(),
-          Expanded(
-            child: _buildGalleryGrid(),
-          ),
+          Expanded(child: _buildGalleryGrid()),
         ],
       ),
     );
@@ -52,7 +54,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 return Padding(
                   padding: EdgeInsets.only(right: screenWidth * 0.02),
                   child: FilterChip(
-                    label: Text(filter, style: TextStyle(fontSize: screenWidth * 0.035)),
+                    label: Text(
+                      filter,
+                      style: TextStyle(fontSize: screenWidth * 0.035),
+                    ),
                     selected: isSelected,
                     onSelected: (selected) {
                       setState(() {
@@ -143,11 +148,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
   Future<List<String>> _getAvailableYears(TransactionProvider provider) async {
     try {
       final transactions = await provider.getTransactionsWithImages(null, null);
-      final years = transactions
-          .map((t) => t.date.year.toString())
-          .toSet()
-          .toList()
-        ..sort((a, b) => b.compareTo(a)); // Sort descending (tahun terbaru dulu)
+      final years =
+          transactions.map((t) => t.date.year.toString()).toSet().toList()
+            ..sort(
+              (a, b) => b.compareTo(a),
+            ); // Sort descending (tahun terbaru dulu)
       return years;
     } catch (e) {
       return [];
@@ -209,7 +214,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
             final screenWidth = MediaQuery.of(context).size.width;
             final crossAxisCount = 2;
             final spacing = screenWidth * 0.03;
-            final itemWidth = (screenWidth - (spacing * (crossAxisCount + 1))) / crossAxisCount;
+            final itemWidth =
+                (screenWidth - (spacing * (crossAxisCount + 1))) /
+                crossAxisCount;
 
             return GridView.builder(
               padding: EdgeInsets.all(spacing),
@@ -281,7 +288,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.black54,
-                        borderRadius: BorderRadius.circular(AppConstants.radiusSmall),
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.radiusSmall,
+                        ),
                       ),
                       child: Text(
                         DateFormatter.formatShortDate(transaction.date),
@@ -328,7 +337,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  Future<List<TransactionModel>> _getFilteredTransactions(TransactionProvider provider) async {
+  Future<List<TransactionModel>> _getFilteredTransactions(
+    TransactionProvider provider,
+  ) async {
     DateTime? startDate;
     DateTime? endDate;
 
@@ -356,12 +367,17 @@ class _GalleryScreenState extends State<GalleryScreen> {
         break;
     }
 
-    var transactions = await provider.getTransactionsWithImages(startDate, endDate);
+    var transactions = await provider.getTransactionsWithImages(
+      startDate,
+      endDate,
+    );
 
     // Filter berdasarkan tahun jika dipilih
     if (_selectedYear != null) {
       final selectedYear = int.parse(_selectedYear!);
-      transactions = transactions.where((t) => t.date.year == selectedYear).toList();
+      transactions = transactions
+          .where((t) => t.date.year == selectedYear)
+          .toList();
     }
 
     return transactions;

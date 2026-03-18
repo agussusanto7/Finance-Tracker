@@ -217,7 +217,9 @@ class SettingsScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const GalleryScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => const GalleryScreen(),
+                  ),
                 );
               },
             ),
@@ -683,7 +685,7 @@ class _ChangePinDialogState extends State<_ChangePinDialog> {
     return InkWell(
       onTap: () => _addDigit(number),
       borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-      child: Container(
+      child: SizedBox(
         width: 72,
         height: 72,
         child: Center(
@@ -708,7 +710,7 @@ class _ChangePinDialogState extends State<_ChangePinDialog> {
     return InkWell(
       onTap: currentPinLength > 0 ? _removeDigit : null,
       borderRadius: BorderRadius.circular(AppConstants.radiusLarge),
-      child: Container(
+      child: SizedBox(
         width: 72,
         height: 72,
         child: Center(
