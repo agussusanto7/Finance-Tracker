@@ -59,6 +59,9 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
   }
 
   void _verifyPin() async {
+    // Beri sedikit jeda agar UI sempat merender titik ke-6
+    await Future.delayed(const Duration(milliseconds: 300));
+
     if (_pin.join() == _confirmPin.join()) {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
 

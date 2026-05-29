@@ -40,6 +40,9 @@ class _PinScreenState extends State<PinScreen> {
   }
 
   Future<void> _verifyPin() async {
+    // Beri sedikit jeda agar UI sempat merender (menampilkan) titik ke-6
+    await Future.delayed(const Duration(milliseconds: 300));
+
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     final enteredPin = _pin.join();
 

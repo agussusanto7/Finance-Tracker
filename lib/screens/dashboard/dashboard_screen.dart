@@ -7,6 +7,7 @@ import '../../providers/transaction_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../utils/currency_formatter.dart';
 import '../../utils/date_formatter.dart';
+import '../chat/chat_screen.dart';
 import '../transaction/add_transaction_screen.dart';
 import '../budget/budget_screen.dart';
 
@@ -39,6 +40,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   _buildBalanceCard(context),
                   const SizedBox(height: 20),
                   _buildQuickActions(context),
+                  const SizedBox(height: 20),
+                  _buildConsultationBanner(context),
                   const SizedBox(height: 20),
                   _buildMonthlyChart(context),
                   const SizedBox(height: 20),
@@ -437,12 +440,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SizedBox(height: 20),
               SizedBox(
                 height: 140,
-                child: FutureBuilder(
+                child: FutureBuilder<List<double>>(
                   future: Future.wait([
                     provider.getTotalIncomeByMonth(DateTime.now()),
                     provider.getTotalExpenseByMonth(DateTime.now()),
                   ]),
-                  builder: (context, AsyncSnapshot<List<double>> snapshot) {
+                  builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       final income = snapshot.data![0];
                       final expense = snapshot.data![1];
@@ -662,9 +665,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              FutureBuilder(
+              FutureBuilder<List<TransactionModel>>(
                 future: provider.getRecentTransactions(5),
-                builder: (context, AsyncSnapshot<List> snapshot) {
+                builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(
                       child: Padding(
@@ -734,7 +737,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildTransactionItem(BuildContext context, dynamic transaction) {
+  Widget _buildTransactionItem(BuildContext context, TransactionModel transaction) {
     final cs = Theme.of(context).colorScheme;
     final textPrimary = cs.onSurface;
     final textSecondary = cs.onSurface.withOpacity(0.55);
@@ -780,6 +783,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontWeight: FontWeight.w600,
                     color: textPrimary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -788,21 +793,100 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fontSize: 12,
                     color: textSecondary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
-          Text(
-            '${isExpense ? '-' : '+'}${CurrencyFormatter.formatCompact(amount)}',
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: isExpense
-                  ? AppConstants.errorColor
-                  : AppConstants.successColor,
+          Flexible(
+            child: Text(
+              '${isExpense ? '-' : '+'}${CurrencyFormatter.formatCompact(amount)}',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: isExpense
+                    ? AppConstants.errorColor
+                    : AppConstants.successColor,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.right,
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildConsultationBanner(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ChatScreen()),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: const Color(0xFF4DB0E6), // Biru cerah sesuai referensi
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            // Ilustrasi puzzle dan orang
+            Image.asset(
+              'assets/images/konsultasi.png',
+              width: 110,
+              height: 110,
+              fit: BoxFit.contain,
+            ),
+            const SizedBox(width: 16),
+            // Konten Teks & Tombol
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Ingin Konsultasi?',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E1E1E), // Teks gelap
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Bingung dengan Keuangan kamu sekarang? Konsultasi aja!',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF333333),
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF2A2A2A), // Tombol gelap
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      'Konsultasi',
+                      style: TextStyle(
+                        color: Color(0xFF4DB0E6), // Teks tombol berwarna biru cerah
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

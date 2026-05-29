@@ -4,6 +4,7 @@ import '../dashboard/dashboard_screen.dart';
 import '../transaction/transaction_list_screen.dart';
 import '../statistics/statistics_screen.dart';
 import '../settings/settings_screen.dart';
+import '../transaction/add_transaction_screen.dart'; // Import halaman asli
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -30,6 +31,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -59,6 +62,7 @@ class _MainScreenState extends State<MainScreen> {
         child: FloatingActionButton(
           heroTag: 'main_fab',
           onPressed: () {
+            // Arahkan ke halaman AddTransactionScreen yang ASLI
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -72,14 +76,16 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: _buildBottomNavBar(),
+      bottomNavigationBar: _buildBottomNavBar(context),
     );
   }
 
-  Widget _buildBottomNavBar() {
+  Widget _buildBottomNavBar(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: AppConstants.cardBackground,
+        color: cs.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -95,11 +101,11 @@ class _MainScreenState extends State<MainScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(Icons.home_rounded, 'Beranda', 0),
-              _buildNavItem(Icons.receipt_long_rounded, 'Transaksi', 1),
+              _buildNavItem(context, Icons.home_rounded, 'Beranda', 0),
+              _buildNavItem(context, Icons.receipt_long_rounded, 'Transaksi', 1),
               const SizedBox(width: 64),
-              _buildNavItem(Icons.pie_chart_rounded, 'Statistik', 2),
-              _buildNavItem(Icons.settings_rounded, 'Pengaturan', 3),
+              _buildNavItem(context, Icons.pie_chart_rounded, 'Statistik', 2),
+              _buildNavItem(context, Icons.settings_rounded, 'Pengaturan', 3),
             ],
           ),
         ),
@@ -107,8 +113,11 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, int index) {
+  Widget _buildNavItem(BuildContext context, IconData icon, String label, int index) {
     final isSelected = _currentIndex == index;
+    final cs = Theme.of(context).colorScheme;
+    final textSecondary = cs.onSurface.withOpacity(0.55);
+
     return InkWell(
       onTap: () => _onTabTapped(index),
       borderRadius: BorderRadius.circular(12),
@@ -128,7 +137,7 @@ class _MainScreenState extends State<MainScreen> {
               icon,
               color: isSelected
                   ? AppConstants.primaryColor
-                  : AppConstants.textSecondary,
+                  : textSecondary,
               size: 24,
             ),
             const SizedBox(height: 4),
@@ -139,27 +148,11 @@ class _MainScreenState extends State<MainScreen> {
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                 color: isSelected
                     ? AppConstants.primaryColor
-                    : AppConstants.textSecondary,
+                    : textSecondary,
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class AddTransactionScreen extends StatelessWidget {
-  const AddTransactionScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tambah Transaksi'),
-      ),
-      body: const Center(
-        child: Text('Add Transaction Screen'),
       ),
     );
   }

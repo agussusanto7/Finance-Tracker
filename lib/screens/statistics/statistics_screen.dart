@@ -23,7 +23,11 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: _selectedPeriod,
+    );
     _tabController.addListener(() {
       setState(() {
         _selectedPeriod = _tabController.index;
@@ -39,22 +43,21 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final textPrimary = cs.onSurface;
+
     return Scaffold(
-      backgroundColor: AppConstants.backgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppConstants.cardBackground,
+        backgroundColor: cs.surface,
         elevation: 0,
         centerTitle: true,
         title: Text(
           'Statistik',
           style: TextStyle(
-            color: AppConstants.textPrimary,
+            color: textPrimary,
             fontWeight: FontWeight.bold,
           ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppConstants.textPrimary),
-          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SingleChildScrollView(
@@ -62,24 +65,28 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildPeriodSelector(),
+            _buildPeriodSelector(context),
             const SizedBox(height: 24),
-            _buildSummaryCards(),
+            _buildSummaryCards(context),
             const SizedBox(height: 24),
-            _buildIncomeExpenseChart(),
+            _buildIncomeExpenseChart(context),
             const SizedBox(height: 24),
-            _buildCategoryBreakdown(),
+            _buildCategoryBreakdown(context),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPeriodSelector() {
+  Widget _buildPeriodSelector(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final cardBg = cs.surface;
+    final textSecondary = cs.onSurface.withOpacity(0.55);
+
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppConstants.cardBackground,
+        color: cardBg,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -103,7 +110,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   _periods[index],
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : AppConstants.textSecondary,
+                    color: isSelected ? Colors.white : textSecondary,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                     fontSize: 13,
                   ),
@@ -116,14 +123,14 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     );
   }
 
-  Widget _buildSummaryCards() {
+  Widget _buildSummaryCards(BuildContext context) {
     return Consumer<TransactionProvider>(
       builder: (context, provider, child) {
         return FutureBuilder(
           future: _getPeriodData(provider),
           builder: (context, AsyncSnapshot<Map<String, double>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return _buildLoadingCards();
+              return _buildLoadingCards(context);
             }
 
             final income = snapshot.data?['income'] ?? 0.0;
@@ -136,6 +143,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   children: [
                     Expanded(
                       child: _buildSummaryCard(
+                        context: context,
                         title: 'Pemasukan',
                         amount: income,
                         color: AppConstants.successColor,
@@ -145,6 +153,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                     const SizedBox(width: 12),
                     Expanded(
                       child: _buildSummaryCard(
+                        context: context,
                         title: 'Pengeluaran',
                         amount: expense,
                         color: AppConstants.errorColor,
@@ -155,6 +164,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 ),
                 const SizedBox(height: 12),
                 _buildSummaryCard(
+                  context: context,
                   title: 'Saldo',
                   amount: balance,
                   color: AppConstants.primaryColor,
@@ -169,27 +179,28 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     );
   }
 
-  Widget _buildLoadingCards() {
+  Widget _buildLoadingCards(BuildContext context) {
     return Column(
       children: [
         Row(
           children: [
-            Expanded(child: _buildShimmerCard()),
+            Expanded(child: _buildShimmerCard(context)),
             const SizedBox(width: 12),
-            Expanded(child: _buildShimmerCard()),
+            Expanded(child: _buildShimmerCard(context)),
           ],
         ),
         const SizedBox(height: 12),
-        _buildShimmerCard(),
+        _buildShimmerCard(context),
       ],
     );
   }
 
-  Widget _buildShimmerCard() {
+  Widget _buildShimmerCard(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return Container(
       height: 100,
       decoration: BoxDecoration(
-        color: AppConstants.cardBackground,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(16),
       ),
       child: const Center(
@@ -199,12 +210,17 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   }
 
   Widget _buildSummaryCard({
+    required BuildContext context,
     required String title,
     required double amount,
     required Color color,
     required IconData icon,
     bool isFullWidth = false,
   }) {
+    final cs = Theme.of(context).colorScheme;
+    final cardBg = cs.surface;
+    final textSecondary = cs.onSurface.withOpacity(0.55);
+
     return Container(
       width: isFullWidth ? double.infinity : null,
       padding: const EdgeInsets.all(20),
@@ -213,8 +229,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppConstants.cardBackground,
-            AppConstants.cardBackground.withOpacity(0.95),
+            cardBg,
+            cardBg.withOpacity(0.95),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
@@ -243,7 +259,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               Text(
                 title,
                 style: TextStyle(
-                  color: AppConstants.textSecondary,
+                  color: textSecondary,
                   fontSize: 14,
                 ),
               ),
@@ -265,13 +281,17 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     );
   }
 
-  Widget _buildIncomeExpenseChart() {
+  Widget _buildIncomeExpenseChart(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final cardBg = cs.surface;
+    final textPrimary = cs.onSurface;
+
     return Consumer<TransactionProvider>(
       builder: (context, provider, child) {
         return Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppConstants.cardBackground,
+            color: cardBg,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -296,7 +316,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: AppConstants.textPrimary,
+                      color: textPrimary,
                     ),
                   ),
                   Container(
@@ -320,7 +340,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 ],
               ),
               const SizedBox(height: 14),
-              ..._buildWeeklyLegend(),
+              ..._buildWeeklyLegend(context),
               const SizedBox(height: 10),
               SizedBox(
                 height: 220,
@@ -340,6 +360,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                           final now = DateTime.now();
                           final highlightIdx = now.weekday - 1;
                           return _buildLineChart(
+                            context: context,
                             data: data,
                             labels: labels,
                             highlightIndex: highlightIdx,
@@ -369,6 +390,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                                     : '',
                               );
                               return _buildLineChart(
+                                context: context,
                                 data: data,
                                 labels: labels,
                                 highlightIndex: now.day - 1,
@@ -391,6 +413,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                               ];
                               final now = DateTime.now();
                               return _buildLineChart(
+                                context: context,
                                 data: data,
                                 labels: labels,
                                 highlightIndex: now.month - 1,
@@ -405,7 +428,10 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     );
   }
 
-  List<Widget> _buildWeeklyLegend() {
+  List<Widget> _buildWeeklyLegend(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final textSecondary = cs.onSurface.withOpacity(0.55);
+
     return [
       Row(
         children: [
@@ -434,7 +460,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 'Pemasukan',
                 style: TextStyle(
                   fontSize: 11,
-                  color: AppConstants.textSecondary,
+                  color: textSecondary,
                 ),
               ),
             ],
@@ -465,7 +491,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 'Pengeluaran',
                 style: TextStyle(
                   fontSize: 11,
-                  color: AppConstants.textSecondary,
+                  color: textSecondary,
                 ),
               ),
             ],
@@ -478,11 +504,17 @@ class _StatisticsScreenState extends State<StatisticsScreen>
 
   /// Universal LineChart builder — dipakai oleh semua 3 periode
   Widget _buildLineChart({
+    required BuildContext context,
     required List<Map<String, double>> data,
     required List<String> labels,
     required int highlightIndex,
     bool showDotsAll = true,
   }) {
+    final cs = Theme.of(context).colorScheme;
+    final cardBg = cs.surface;
+    final textSecondary = cs.onSurface.withOpacity(0.55);
+    final dividerColor = cs.onSurface.withOpacity(0.12);
+
     List<FlSpot> incomeSpots = [];
     List<FlSpot> expenseSpots = [];
     double maxVal = 1;
@@ -509,9 +541,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         lineTouchData: LineTouchData(
           enabled: true,
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (spot) => AppConstants.cardBackground,
+            getTooltipColor: (spot) => cardBg,
             tooltipBorder: BorderSide(
-              color: AppConstants.dividerColor,
+              color: dividerColor,
               width: 1,
             ),
             tooltipPadding: const EdgeInsets.symmetric(
@@ -542,7 +574,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         borderData: FlBorderData(
           show: true,
           border: Border.all(
-            color: AppConstants.dividerColor.withOpacity(0.5),
+            color: dividerColor.withOpacity(0.5),
             width: 1,
           ),
         ),
@@ -552,11 +584,11 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           horizontalInterval: hInterval,
           verticalInterval: maxX / 6,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: AppConstants.dividerColor.withOpacity(0.3),
+            color: dividerColor.withOpacity(0.3),
             strokeWidth: 1,
           ),
           getDrawingVerticalLine: (value) => FlLine(
-            color: AppConstants.dividerColor.withOpacity(0.3),
+            color: dividerColor.withOpacity(0.3),
             strokeWidth: 1,
           ),
         ),
@@ -580,7 +612,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   child: Text(
                     CurrencyFormatter.formatCompact(value),
                     style: TextStyle(
-                      color: AppConstants.textSecondary,
+                      color: textSecondary,
                       fontSize: 9,
                     ),
                     textAlign: TextAlign.right,
@@ -609,7 +641,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                     style: TextStyle(
                       color: isHighlight
                           ? AppConstants.primaryColor
-                          : AppConstants.textSecondary,
+                          : textSecondary,
                       fontSize: 10,
                       fontWeight: isHighlight
                           ? FontWeight.bold
@@ -786,13 +818,18 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     return result;
   }
 
-  Widget _buildCategoryBreakdown() {
+  Widget _buildCategoryBreakdown(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final cardBg = cs.surface;
+    final textPrimary = cs.onSurface;
+    final textSecondary = cs.onSurface.withOpacity(0.55);
+
     return Consumer<TransactionProvider>(
       builder: (context, provider, child) {
         return Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: AppConstants.cardBackground,
+            color: cardBg,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
@@ -810,7 +847,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppConstants.textPrimary,
+                  color: textPrimary,
                 ),
               ),
               const SizedBox(height: 20),
@@ -837,12 +874,12 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                           Icon(
                             Icons.pie_chart_outline,
                             size: 48,
-                            color: AppConstants.textSecondary,
+                            color: textSecondary,
                           ),
                           const SizedBox(height: 12),
                           Text(
                             'Belum ada data pengeluaran',
-                            style: TextStyle(color: AppConstants.textSecondary),
+                            style: TextStyle(color: textSecondary),
                           ),
                         ],
                       ),
@@ -919,7 +956,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                                   entry.key,
                                   style: TextStyle(
                                     fontSize: 14,
-                                    color: AppConstants.textPrimary,
+                                    color: textPrimary,
                                   ),
                                 ),
                               ),
@@ -948,7 +985,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                                 style: TextStyle(
                                   fontSize: 14,
                                   fontWeight: FontWeight.bold,
-                                  color: AppConstants.textPrimary,
+                                  color: textPrimary,
                                 ),
                               ),
                             ],
