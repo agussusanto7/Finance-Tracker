@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_constants.dart';
 import '../../models/transaction_model.dart';
@@ -185,10 +186,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      Icons.photo_library_outlined,
-                      size: 64,
-                      color: AppConstants.textSecondary,
+                    SvgPicture.asset(
+                      'assets/svg/icons8-ios-photos-90.svg',
+                      width: 90,
+                      height: 90,
                     ),
                     const SizedBox(height: AppConstants.paddingMedium),
                     Text(

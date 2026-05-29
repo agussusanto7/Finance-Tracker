@@ -4,11 +4,13 @@ import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../constants/app_constants.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../budget/budget_screen.dart';
 import '../gallery/gallery_screen.dart';
+import '../category/category_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -233,11 +235,16 @@ class SettingsScreen extends StatelessWidget {
               leading: const Icon(Icons.category_outlined),
               title: const Text('Kelola Kategori'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CategoryScreen()),
+                );
+              },
             ),
             const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
+              leading: SvgPicture.asset('assets/svg/icons8-ios-photos.svg', width: 28, height: 28),
               title: const Text('Galeri Bukti Transaksi'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {

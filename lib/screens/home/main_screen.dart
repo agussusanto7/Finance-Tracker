@@ -4,7 +4,7 @@ import '../dashboard/dashboard_screen.dart';
 import '../transaction/transaction_list_screen.dart';
 import '../statistics/statistics_screen.dart';
 import '../settings/settings_screen.dart';
-import '../transaction/add_transaction_screen.dart'; // Import halaman asli
+import '../calculator/calculator_screen.dart'; // Import halaman kalkulator
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -62,17 +62,17 @@ class _MainScreenState extends State<MainScreen> {
         child: FloatingActionButton(
           heroTag: 'main_fab',
           onPressed: () {
-            // Arahkan ke halaman AddTransactionScreen yang ASLI
+            // Arahkan ke halaman CalculatorScreen
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const AddTransactionScreen(),
+                builder: (context) => const CalculatorScreen(),
               ),
             );
           },
           backgroundColor: Colors.transparent,
           elevation: 0,
-          child: const Icon(Icons.add, color: Colors.white, size: 28),
+          child: const Icon(Icons.calculate, color: Colors.white, size: 28),
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
