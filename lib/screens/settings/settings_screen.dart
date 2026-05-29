@@ -73,9 +73,16 @@ class SettingsScreen extends StatelessWidget {
 
   Widget _buildProfileHeader(BuildContext context, UserProvider userProvider, bool isDarkMode) {
     final user = userProvider.user!;
-    final hasPhoto = user.photoPath != null;
-    final photoFile = hasPhoto ? File(user.photoPath!) : null;
-    final photoExists = photoFile?.existsSync() ?? false;
+    final hasPhoto = user.photoPath != null && user.photoPath!.isNotEmpty;
+    final isNetworkPhoto = hasPhoto && user.photoPath!.startsWith('http');
+    final photoFile = hasPhoto && !isNetworkPhoto ? File(user.photoPath!) : null;
+    final photoExists = isNetworkPhoto || (photoFile?.existsSync() ?? false);
+
+    ImageProvider? getProfileImage() {
+      if (isNetworkPhoto) return NetworkImage(user.photoPath!);
+      if (photoExists && photoFile != null) return FileImage(photoFile);
+      return null;
+    }
 
     return Container(
       width: double.infinity,
@@ -90,10 +97,10 @@ class SettingsScreen extends StatelessWidget {
               CircleAvatar(
                 radius: 50,
                 backgroundColor: AppConstants.primaryColor.withValues(alpha: 0.1),
-                backgroundImage: photoExists ? FileImage(photoFile!) : null,
+                backgroundImage: getProfileImage(),
                 child: !photoExists
                     ? Text(
-                        user.name[0].toUpperCase(),
+                        user.name.isNotEmpty ? user.name[0].toUpperCase() : '?',
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,

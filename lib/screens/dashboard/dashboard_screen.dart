@@ -57,38 +57,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildAppBar(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    return SliverAppBar(
-      expandedHeight: 140,
-      floating: false,
-      pinned: true,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      elevation: 0,
-      flexibleSpace: FlexibleSpaceBar(
-        titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Hai, Selamat Datang! 👋',
-              style: TextStyle(
-                color: cs.onSurface.withOpacity(0.55),
-                fontSize: 13,
-                fontWeight: FontWeight.normal,
-              ),
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        final userName = userProvider.user?.name ?? 'Pengguna';
+        // Ambil nama depan saja agar tidak terlalu panjang
+        final firstName = userName.split(' ').first;
+        
+        return SliverAppBar(
+          expandedHeight: 140,
+          floating: false,
+          pinned: true,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          elevation: 0,
+          flexibleSpace: FlexibleSpaceBar(
+            titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+            title: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Hai, $firstName! 👋',
+                  style: TextStyle(
+                    color: cs.onSurface.withOpacity(0.55),
+                    fontSize: 13,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'FinanceTracker',
+                  style: TextStyle(
+                    color: cs.onSurface,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 2),
-            Text(
-              'FinanceTracker',
-              style: TextStyle(
-                color: cs.onSurface,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

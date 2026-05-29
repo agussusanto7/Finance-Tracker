@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../constants/app_constants.dart';
 import '../../models/user_model.dart';
 import '../../providers/user_provider.dart';
@@ -65,9 +66,25 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
     if (_pin.join() == _confirmPin.join()) {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-      // Create default user with the PIN
+      // Ambil nama dari Firebase jika ada
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      await firebaseUser?.reload(); // Memaksa pembaruan data dari server
+      final updatedUser = FirebaseAuth.instance.currentUser;
+
+      String userName = 'Pengguna';
+      if (updatedUser != null) {
+        if (updatedUser.displayName != null && updatedUser.displayName!.isNotEmpty) {
+          userName = updatedUser.displayName!;
+        } else if (updatedUser.email != null && updatedUser.email!.isNotEmpty) {
+          // Jika nama kosong (misal akun lama), gunakan bagian depan email
+          userName = updatedUser.email!.split('@').first;
+        }
+      }
+
+      // Create user with the PIN and Firebase Name
       final user = UserModel(
-        name: 'Pengguna',
+        name: userName,
+        photoPath: updatedUser?.photoURL,
         pin: _pin.join(),
       );
 
