@@ -228,39 +228,49 @@ class _DashboardScreenState extends State<DashboardScreen> {
       future: onGetAmount(),
       builder: (context, snapshot) {
         final amount = snapshot.data ?? 0.0;
-        return Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(10),
+        return Expanded(
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: Colors.white, size: 14),
               ),
-              child: Icon(icon, color: Colors.white, size: 16),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.7),
-                    fontSize: 11,
-                  ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: Colors.white.withOpacity(0.7),
+                        fontSize: 11,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        balanceHidden ? '• • •' : CurrencyFormatter.formatCompact(amount),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  balanceHidden ? '• • •' : CurrencyFormatter.formatCompact(amount),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         );
       },
     );
@@ -479,29 +489,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           PieChartSectionData(
                                             value: income,
                                             color: AppConstants.successColor,
-                                            radius: 35,
+                                            radius: 30,
                                             title:
                                                 '${((income / total) * 100).toInt()}%',
                                             titleStyle: const TextStyle(
                                               color: Colors.white,
-                                              fontSize: 10,
+                                              fontSize: 9,
                                               fontWeight: FontWeight.bold,
                                             ),
-                                            titlePositionPercentageOffset: 0.55,
+                                            titlePositionPercentageOffset: 0.6,
                                           ),
                                         if (expense > 0)
                                           PieChartSectionData(
                                             value: expense,
                                             color: AppConstants.errorColor,
-                                            radius: 35,
+                                            radius: 30,
                                             title:
                                                 '${((expense / total) * 100).toInt()}%',
                                             titleStyle: const TextStyle(
                                               color: Colors.white,
-                                              fontSize: 10,
+                                              fontSize: 9,
                                               fontWeight: FontWeight.bold,
                                             ),
-                                            titlePositionPercentageOffset: 0.55,
+                                            titlePositionPercentageOffset: 0.6,
                                           ),
                                       ],
                                 sectionsSpace: total == 0 ? 0 : 2,
@@ -580,14 +590,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Row(
       children: [
         Container(
-          width: 12,
-          height: 12,
+          width: 10,
+          height: 10,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(3),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 6),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -595,9 +605,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 11,
                   color: textSecondary,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               if (percentage != null)
                 Text(
@@ -611,12 +623,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ],
           ),
         ),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: textPrimary,
+        const SizedBox(width: 4),
+        Flexible(
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerRight,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: textPrimary,
+              ),
+            ),
           ),
         ),
       ],
