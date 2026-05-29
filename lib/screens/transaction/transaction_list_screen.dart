@@ -192,6 +192,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontSize: screenWidth * 0.04,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,6 +203,8 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   fontSize: screenWidth * 0.03,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
               if (transaction.note != null && transaction.note!.isNotEmpty)
                 Text(
@@ -214,16 +218,21 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
                 ),
             ],
           ),
-          trailing: FittedBox(
-            child: Text(
-              '${isExpense ? '-' : '+'}${CurrencyFormatter.formatCurrency(transaction.amount)}',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: isExpense
-                        ? AppConstants.errorColor
-                        : AppConstants.successColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: screenWidth * 0.035,
-                  ),
+          trailing: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: screenWidth * 0.35),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                '${isExpense ? '-' : '+'}${CurrencyFormatter.formatCurrency(transaction.amount)}',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: isExpense
+                          ? AppConstants.errorColor
+                          : AppConstants.successColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: screenWidth * 0.035,
+                    ),
+              ),
             ),
           ),
         ),

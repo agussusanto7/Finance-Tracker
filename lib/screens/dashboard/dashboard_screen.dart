@@ -133,33 +133,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Total Saldo',
-                        style: TextStyle(
-                          color: Colors.white.withOpacity(0.8),
-                          fontSize: 14,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          balanceHidden
-                              ? 'Rp ••••••••'
-                              : CurrencyFormatter.formatCurrency(
-                                  transactionProvider.totalBalance),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Total Saldo',
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 12,
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 4),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            balanceHidden
+                                ? 'Rp ••••••••'
+                                : CurrencyFormatter.formatCurrency(
+                                    transactionProvider.totalBalance),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   IconButton(
                     onPressed: () {
                       userProvider.toggleBalanceHidden();
@@ -489,7 +493,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           PieChartSectionData(
                                             value: income,
                                             color: AppConstants.successColor,
-                                            radius: 30,
+                                            radius: 25,
                                             title:
                                                 '${((income / total) * 100).toInt()}%',
                                             titleStyle: const TextStyle(
@@ -503,7 +507,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           PieChartSectionData(
                                             value: expense,
                                             color: AppConstants.errorColor,
-                                            radius: 30,
+                                            radius: 25,
                                             title:
                                                 '${((expense / total) * 100).toInt()}%',
                                             titleStyle: const TextStyle(
@@ -515,11 +519,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           ),
                                       ],
                                 sectionsSpace: total == 0 ? 0 : 2,
-                                centerSpaceRadius: 25,
+                                centerSpaceRadius: 20,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 24),
+                          const SizedBox(width: 12),
                           Expanded(
                             flex: 3,
                             child: Column(
@@ -605,7 +609,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 10,
                   color: textSecondary,
                 ),
                 maxLines: 1,
@@ -631,7 +635,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Text(
               value,
               style: TextStyle(
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
                 color: textPrimary,
               ),
@@ -806,7 +810,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   category,
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: textPrimary,
                   ),
@@ -817,28 +821,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   DateFormatter.formatRelativeDate(date),
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     color: textSecondary,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
           ),
+          const SizedBox(width: 8),
           Flexible(
-            child: Text(
-              '${isExpense ? '-' : '+'}${CurrencyFormatter.formatCompact(amount)}',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: isExpense
-                    ? AppConstants.errorColor
-                    : AppConstants.successColor,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                '${isExpense ? '-' : '+'}${CurrencyFormatter.formatCurrency(amount)}',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                  color: isExpense
+                      ? AppConstants.errorColor
+                      : AppConstants.successColor,
+                ),
               ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.right,
             ),
           ),
         ],

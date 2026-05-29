@@ -270,15 +270,18 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             ],
           ),
           const SizedBox(height: 12),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              CurrencyFormatter.formatCurrency(amount),
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: isFullWidth ? 22 : 18,
+          SizedBox(
+            width: double.infinity,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                CurrencyFormatter.formatCurrency(amount),
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: isFullWidth ? 20 : 16,
+                ),
               ),
             ),
           ),
