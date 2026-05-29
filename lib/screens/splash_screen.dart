@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../constants/app_constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'onboarding/onboarding_screen.dart';
-import 'auth/pin_screen.dart';
 import 'home/main_screen.dart';
+import 'auth/pin_screen.dart';
+import 'auth/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -70,8 +72,24 @@ class _SplashScreenState extends State<SplashScreen>
       await userProvider.loadUser();
       final user = userProvider.user;
       final pinSet = await userProvider.isPinSet();
+      final isFirebaseLoggedIn = FirebaseAuth.instance.currentUser != null;
 
-      if (user != null && user.pin != null && user.pin!.isNotEmpty && pinSet) {
+      if (!isFirebaseLoggedIn) {
+        // Belum login ke Firebase, wajib ke halaman Login
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const LoginScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 400),
+          ),
+        );
+      } else if (user != null && user.pin != null && user.pin!.isNotEmpty && pinSet) {
+        // Sudah login dan PIN sudah di-set
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
@@ -85,6 +103,7 @@ class _SplashScreenState extends State<SplashScreen>
           ),
         );
       } else {
+        // Sudah login tapi belum ada PIN (atau dilewati)
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
@@ -132,7 +151,7 @@ class _SplashScreenState extends State<SplashScreen>
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // App icon with gradient background
+                      // App icon
                       Container(
                         width: 140,
                         height: 140,
@@ -148,25 +167,11 @@ class _SplashScreenState extends State<SplashScreen>
                           ],
                         ),
                         child: Center(
-                          child: Container(
-                            width: 70,
-                            height: 70,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  AppConstants.primaryColor,
-                                  AppConstants.gradientEnd,
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Icon(
-                              Icons.account_balance_wallet_rounded,
-                              size: 36,
-                              color: Colors.white,
-                            ),
+                          child: Image.asset(
+                            'assets/images/launcher.png',
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),

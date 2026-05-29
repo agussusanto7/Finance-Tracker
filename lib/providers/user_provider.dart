@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_model.dart';
 import '../database/database_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,29 @@ class UserProvider with ChangeNotifier {
 
     try {
       _user = await DatabaseHelper.instance.getFirstUser();
+      
+      // Sync dengan Firebase jika sedang login
+      final firebaseUser = FirebaseAuth.instance.currentUser;
+      if (firebaseUser != null && _user != null) {
+        bool needUpdate = false;
+        String newName = _user!.name;
+        String? newPhoto = _user!.photoPath;
+        
+        if (firebaseUser.displayName != null && firebaseUser.displayName!.isNotEmpty && firebaseUser.displayName != _user!.name) {
+          newName = firebaseUser.displayName!;
+          needUpdate = true;
+        }
+        if (firebaseUser.photoURL != null && firebaseUser.photoURL != _user!.photoPath) {
+          newPhoto = firebaseUser.photoURL;
+          needUpdate = true;
+        }
+        
+        if (needUpdate) {
+          _user = _user!.copyWith(name: newName, photoPath: newPhoto);
+          await DatabaseHelper.instance.updateUser(_user!);
+        }
+      }
+      
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -30,7 +54,6 @@ class UserProvider with ChangeNotifier {
       debugPrint('Error loading user: $e');
     }
   }
-
   Future<void> createUser(UserModel user) async {
     try {
       await DatabaseHelper.instance.createUser(user);

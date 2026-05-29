@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "347442297903",
+    "project_id": "financne-tracker",
+    "storage_bucket": "financne-tracker.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347442297903:android:fedfd9b737742a5801dada",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "347442297903-05tp3c4q690a7sccobjjhjhrq5dtnkvi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.flutter_application_1",
+            "certificate_hash": "9cf2668bd3902d2b00ee25b698cdf5093b15c99f"
+          }
+        },
+        {
+          "client_id": "347442297903-qnqhisb86gkic42augifne90cm0kcqps.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDom8DG4kp8YrkrDYKgNqt5RQjEI0o7MAc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "347442297903-qnqhisb86gkic42augifne90cm0kcqps.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "347442297903-jm463esqi9s8fv3ed2ukg77okmes92jk.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.flutterApplication1"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

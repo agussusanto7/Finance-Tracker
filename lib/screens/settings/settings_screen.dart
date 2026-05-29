@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../../constants/app_constants.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -451,10 +453,18 @@ class SettingsScreen extends StatelessWidget {
             child: const Text('Batal'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              // Hapus sesi Firebase Auth & Google
+              await FirebaseAuth.instance.signOut();
+              await GoogleSignIn().signOut();
+              
+              // Hapus sesi lokal
               userProvider.logout();
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/splash');
+              
+              if (context.mounted) {
+                Navigator.pop(context); // Tutup dialog
+                Navigator.pushReplacementNamed(context, '/splash');
+              }
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppConstants.errorColor,
