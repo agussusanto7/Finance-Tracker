@@ -20,7 +20,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // Masukkan API Key Gemini Anda di sini
   // Dapatkan di: https://aistudio.google.com/
-  static const String _apiKey = 'AIzaSyCLVDaJU1Z9zQLCmh57coJ0ed0V5vO_cVk';
+  static const String _apiKey = '';
 
   late final GenerativeModel _model;
   late final ChatSession _chatSession;
@@ -90,12 +90,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       final contextStr = _buildFinancialContext();
-      final fullPrompt = '$contextStr\n\nPertanyaan Pengguna: $messageText\n\nInstruksi Tambahan: Jawablah pertanyaan pengguna berdasarkan data keuangan di atas. Berikan jawaban secara langsung dan ramah tanpa mengulangi konteks data yang kuberikan.';
+      final fullPrompt =
+          '$contextStr\n\nPertanyaan Pengguna: $messageText\n\nInstruksi Tambahan: Jawablah pertanyaan pengguna berdasarkan data keuangan di atas. Berikan jawaban secara langsung dan ramah tanpa mengulangi konteks data yang kuberikan.';
 
       // 2. Kirim pesan ke API Gemini dengan konteks
-      final response = await _chatSession.sendMessage(
-        Content.text(fullPrompt),
-      );
+      final response = await _chatSession.sendMessage(Content.text(fullPrompt));
 
       // 3. Tambahkan balasan AI ke UI
       setState(() {
@@ -138,10 +137,10 @@ class _ChatScreenState extends State<ChatScreen> {
   String _buildFinancialContext() {
     final provider = Provider.of<TransactionProvider>(context, listen: false);
     final transactions = provider.transactions;
-    
+
     double totalIncome = 0;
     double totalExpense = 0;
-    
+
     for (var tx in transactions) {
       if (tx.type == TransactionType.income) {
         totalIncome += tx.amount;
@@ -149,28 +148,32 @@ class _ChatScreenState extends State<ChatScreen> {
         totalExpense += tx.amount;
       }
     }
-    
+
     final balance = CurrencyFormatter.formatCurrency(provider.totalBalance);
     final income = CurrencyFormatter.formatCurrency(totalIncome);
     final expense = CurrencyFormatter.formatCurrency(totalExpense);
-    
-    String contextStr = "KONTEKS DATA KEUANGAN PENGGUNA SAAT INI (JANGAN SEBUTKAN INI KE PENGGUNA SECARA EKSPLISIT, GUNAKAN SEBAGAI PENGETAHUAN):\n";
+
+    String contextStr =
+        "KONTEKS DATA KEUANGAN PENGGUNA SAAT INI (JANGAN SEBUTKAN INI KE PENGGUNA SECARA EKSPLISIT, GUNAKAN SEBAGAI PENGETAHUAN):\n";
     contextStr += "- Saldo Saat Ini: $balance\n";
     contextStr += "- Total Pemasukan: $income\n";
     contextStr += "- Total Pengeluaran: $expense\n";
     contextStr += "- Total Riwayat Transaksi: ${transactions.length}\n";
-    
+
     if (transactions.isNotEmpty) {
       contextStr += "\n5 Transaksi Terakhir:\n";
       // Ambil 5 transaksi teratas (sudah diurutkan dari terbaru di provider)
       final recentTx = transactions.take(5).toList();
       for (var tx in recentTx) {
-        final type = tx.type == TransactionType.income ? 'Pemasukan' : 'Pengeluaran';
+        final type = tx.type == TransactionType.income
+            ? 'Pemasukan'
+            : 'Pengeluaran';
         final amt = CurrencyFormatter.formatCurrency(tx.amount);
-        contextStr += "- [${tx.date.toString().substring(0, 10)}] ${tx.category} ($type): $amt\n";
+        contextStr +=
+            "- [${tx.date.toString().substring(0, 10)}] ${tx.category} ($type): $amt\n";
       }
     }
-    
+
     return contextStr;
   }
 
@@ -335,17 +338,21 @@ class _ChatScreenState extends State<ChatScreen> {
                   isUser
                       ? Text(
                           text,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
+                          style: TextStyle(color: Colors.white, fontSize: 14),
                         )
                       : MarkdownBody(
                           data: text,
                           styleSheet: MarkdownStyleSheet(
                             p: TextStyle(color: cs.onSurface, fontSize: 14),
-                            strong: TextStyle(color: cs.onSurface, fontWeight: FontWeight.bold, fontSize: 14),
-                            listBullet: TextStyle(color: cs.onSurface, fontSize: 14),
+                            strong: TextStyle(
+                              color: cs.onSurface,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                            listBullet: TextStyle(
+                              color: cs.onSurface,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
                   const SizedBox(height: 4),
