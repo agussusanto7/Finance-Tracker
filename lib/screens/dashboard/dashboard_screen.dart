@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../constants/app_constants.dart';
-import '../../constants/app_theme.dart';
 import '../../models/transaction_model.dart';
 import '../../providers/transaction_provider.dart';
 import '../../providers/user_provider.dart';
@@ -21,23 +20,29 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final bgColor = cs.surface == const Color(0xFF1E1E2E)
+        ? const Color(0xFF121218)
+        : const Color(0xFFF4F5F9);
+
     return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
-          _buildAppBar(),
+          _buildAppBar(context),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(AppConstants.paddingMedium),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildBalanceCard(),
-                  const SizedBox(height: AppConstants.paddingMedium),
-                  _buildQuickActions(),
-                  const SizedBox(height: AppConstants.paddingMedium),
-                  _buildMonthlyChart(),
-                  const SizedBox(height: AppConstants.paddingMedium),
-                  _buildRecentTransactions(),
+                  _buildBalanceCard(context),
+                  const SizedBox(height: 20),
+                  _buildQuickActions(context),
+                  const SizedBox(height: 20),
+                  _buildMonthlyChart(context),
+                  const SizedBox(height: 20),
+                  _buildRecentTransactions(context),
                 ],
               ),
             ),
@@ -47,52 +52,102 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildAppBar() {
+  Widget _buildAppBar(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
     return SliverAppBar(
-      expandedHeight: MediaQuery.of(context).size.height * 0.15,
+      expandedHeight: 140,
       floating: false,
       pinned: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      elevation: 0,
       flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          AppConstants.appName,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        background: Container(
-          decoration: AppTheme.appBarGradient,
+        titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
+        title: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Hai, Selamat Datang! 👋',
+              style: TextStyle(
+                color: cs.onSurface.withOpacity(0.55),
+                fontSize: 13,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              'FinanceTracker',
+              style: TextStyle(
+                color: cs.onSurface,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildBalanceCard() {
+  Widget _buildBalanceCard(BuildContext context) {
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
         final transactionProvider = Provider.of<TransactionProvider>(context);
         final balanceHidden = userProvider.user?.balanceHidden ?? false;
-        final screenWidth = MediaQuery.of(context).size.width;
-        final isSmallScreen = screenWidth < 360;
 
         return Container(
           width: double.infinity,
-          decoration: AppTheme.cardGradient,
-          padding: EdgeInsets.all(isSmallScreen ? screenWidth * 0.035 : screenWidth * 0.04),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppConstants.primaryColor,
+                AppConstants.gradientEnd,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: AppConstants.primaryColor.withOpacity(0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Flexible(
-                    child: Text(
-                      'Total Saldo',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Total Saldo',
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          balanceHidden
+                              ? 'Rp ••••••••'
+                              : CurrencyFormatter.formatCurrency(
+                                  transactionProvider.totalBalance),
+                          style: const TextStyle(
                             color: Colors.white,
-                            fontSize: isSmallScreen ? screenWidth * 0.04 : screenWidth * 0.045,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
                           ),
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
                   IconButton(
                     onPressed: () {
@@ -101,26 +156,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     icon: Icon(
                       balanceHidden ? Icons.visibility_off : Icons.visibility,
                       color: Colors.white,
-                      size: isSmallScreen ? 20 : 24,
+                      size: 24,
                     ),
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.white.withOpacity(0.2),
+                      padding: const EdgeInsets.all(10),
+                    ),
                   ),
                 ],
               ),
-              SizedBox(height: screenWidth * 0.02),
-              FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Text(
-                  balanceHidden
-                      ? 'Rp ***'
-                      : CurrencyFormatter.formatCurrency(
-                          transactionProvider.totalBalance),
-                  style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: isSmallScreen ? screenWidth * 0.065 : screenWidth * 0.08,
-                      ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildBalanceItem(
+                      icon: Icons.arrow_downward_rounded,
+                      label: 'Pemasukan',
+                      color: AppConstants.successColor,
+                      onGetAmount: () =>
+                          transactionProvider.getTotalIncomeByMonth(DateTime.now()),
+                      balanceHidden: balanceHidden,
+                    ),
+                    Container(
+                      width: 1,
+                      height: 40,
+                      color: Colors.white.withOpacity(0.2),
+                    ),
+                    _buildBalanceItem(
+                      icon: Icons.arrow_upward_rounded,
+                      label: 'Pengeluaran',
+                      color: AppConstants.errorColor,
+                      onGetAmount: () =>
+                          transactionProvider.getTotalExpenseByMonth(DateTime.now()),
+                      balanceHidden: balanceHidden,
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -130,109 +206,171 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildQuickActions() {
-    final screenWidth = MediaQuery.of(context).size.width;
-
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(screenWidth * 0.04),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildBalanceItem({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required Future<double> Function() onGetAmount,
+    required bool balanceHidden,
+  }) {
+    return FutureBuilder<double>(
+      future: onGetAmount(),
+      builder: (context, snapshot) {
+        final amount = snapshot.data ?? 0.0;
+        return Row(
           children: [
-            Text(
-              'Aksi Cepat',
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontSize: screenWidth * 0.04,
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(10),
               ),
+              child: Icon(icon, color: Colors.white, size: 16),
             ),
-            SizedBox(height: screenWidth * 0.03),
-            // Use Wrap for responsive layout on small screens
-            Wrap(
-              spacing: screenWidth * 0.03,
-              runSpacing: screenWidth * 0.02,
-              alignment: WrapAlignment.spaceAround,
+            const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildQuickActionButton(
-                  icon: Icons.arrow_downward,
-                  label: 'Pemasukan',
-                  color: AppConstants.successColor,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddTransactionScreen(
-                          initialType: TransactionType.income,
-                        ),
-                      ),
-                    );
-                  },
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 11,
+                  ),
                 ),
-                _buildQuickActionButton(
-                  icon: Icons.arrow_upward,
-                  label: 'Pengeluaran',
-                  color: AppConstants.errorColor,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const AddTransactionScreen(
-                          initialType: TransactionType.expense,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                _buildQuickActionButton(
-                  icon: Icons.account_balance_wallet,
-                  label: 'Budget',
-                  color: AppConstants.infoColor,
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const BudgetScreen()),
-                    );
-                  },
+                const SizedBox(height: 2),
+                Text(
+                  balanceHidden ? '• • •' : CurrencyFormatter.formatCompact(amount),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ],
             ),
           ],
-        ),
+        );
+      },
+    );
+  }
+
+  Widget _buildQuickActions(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final cardBg = cs.surface;
+    final textPrimary = cs.onSurface;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Aksi Cepat',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildQuickActionButton(
+                context: context,
+                icon: Icons.arrow_downward_rounded,
+                label: 'Pemasukan',
+                color: AppConstants.successColor,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddTransactionScreen(
+                        initialType: TransactionType.income,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildQuickActionButton(
+                context: context,
+                icon: Icons.arrow_upward_rounded,
+                label: 'Pengeluaran',
+                color: AppConstants.errorColor,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AddTransactionScreen(
+                        initialType: TransactionType.expense,
+                      ),
+                    ),
+                  );
+                },
+              ),
+              _buildQuickActionButton(
+                context: context,
+                icon: Icons.account_balance_wallet_rounded,
+                label: 'Budget',
+                color: AppConstants.primaryColor,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const BudgetScreen()),
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildQuickActionButton({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required Color color,
     required VoidCallback onTap,
   }) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 360;
-
+    final textPrimary = Theme.of(context).colorScheme.onSurface;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
-      child: Padding(
-        padding: EdgeInsets.all(isSmallScreen ? screenWidth * 0.01 : screenWidth * 0.015),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Container(
-              width: isSmallScreen ? screenWidth * 0.15 : screenWidth * 0.13,
-              height: isSmallScreen ? screenWidth * 0.15 : screenWidth * 0.13,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                shape: BoxShape.circle,
+                color: color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(icon, color: color, size: isSmallScreen ? screenWidth * 0.07 : screenWidth * 0.06),
+              child: Icon(icon, color: color, size: 28),
             ),
-            SizedBox(height: screenWidth * 0.02),
+            const SizedBox(height: 10),
             Text(
               label,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                fontSize: isSmallScreen ? screenWidth * 0.028 : screenWidth * 0.03,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: textPrimary,
               ),
-              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -240,241 +378,431 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildMonthlyChart() {
+  Widget _buildMonthlyChart(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final cardBg = cs.surface;
+    final textPrimary = cs.onSurface;
+    final textSecondary = cs.onSurface.withOpacity(0.55);
+    final divider = cs.onSurface.withOpacity(0.12);
+
     return Consumer<TransactionProvider>(
       builder: (context, provider, child) {
-        final screenHeight = MediaQuery.of(context).size.height;
-        final screenWidth = MediaQuery.of(context).size.width;
-        final isSmallScreen = screenHeight < 600;
-
-        return Card(
-          child: Padding(
-            padding: EdgeInsets.all(screenWidth * 0.04),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Ringkasan Bulan Ini',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontSize: screenWidth * 0.04,
-                  ),
-                ),
-                SizedBox(height: screenWidth * 0.03),
-                SizedBox(
-                  height: isSmallScreen ? screenHeight * 0.20 : screenHeight * 0.25,
-                  child: FutureBuilder(
-                    future: Future.wait([
-                      provider.getTotalIncomeByMonth(DateTime.now()),
-                      provider.getTotalExpenseByMonth(DateTime.now()),
-                    ]),
-                    builder: (context, AsyncSnapshot<List<double>> snapshot) {
-                      if (snapshot.hasData) {
-                        final income = snapshot.data![0];
-                        final expense = snapshot.data![1];
-
-                        return PieChart(
-                          PieChartData(
-                            sections: [
-                              PieChartSectionData(
-                                value: income,
-                                title: 'Pemasukan\n${CurrencyFormatter.formatCompact(income)}',
-                                color: AppConstants.successColor,
-                                radius: isSmallScreen ? screenWidth * 0.15 : screenWidth * 0.18,
-                                titleStyle: TextStyle(
-                                  fontSize: isSmallScreen ? screenWidth * 0.03 : screenWidth * 0.035,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              PieChartSectionData(
-                                value: expense,
-                                title: 'Pengeluaran\n${CurrencyFormatter.formatCompact(expense)}',
-                                color: AppConstants.errorColor,
-                                radius: isSmallScreen ? screenWidth * 0.15 : screenWidth * 0.18,
-                                titleStyle: TextStyle(
-                                  fontSize: isSmallScreen ? screenWidth * 0.03 : screenWidth * 0.035,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                            sectionsSpace: 2,
-                            centerSpaceRadius: isSmallScreen ? screenWidth * 0.12 : screenWidth * 0.09,
-                          ),
-                        );
-                      }
-                      return const Center(child: CircularProgressIndicator());
-                    },
-                  ),
-                ),
-              ],
-            ),
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildRecentTransactions() {
-    return Consumer<TransactionProvider>(
-      builder: (context, provider, child) {
-        final screenWidth = MediaQuery.of(context).size.width;
-
-        return Card(
-          child: Padding(
-            padding: EdgeInsets.all(screenWidth * 0.04),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        'Transaksi Terbaru',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontSize: screenWidth * 0.04,
-                        ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Ringkasan Bulan Ini',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: textPrimary,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppConstants.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'Bulan ini',
+                      style: TextStyle(
+                        color: AppConstants.primaryColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    TextButton(
-                      onPressed: () {
-                        // Navigate to transaction list
-                      },
-                      child: Text(
-                        'Lihat Semua',
-                        style: TextStyle(fontSize: screenWidth * 0.035),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: screenWidth * 0.03),
-                FutureBuilder(
-                  future: provider.getRecentTransactions(5),
-                  builder: (context, AsyncSnapshot<List> snapshot) {
-                    if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(AppConstants.paddingLarge),
-                          child: CircularProgressIndicator(),
-                        ),
-                      );
-                    }
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 140,
+                child: FutureBuilder(
+                  future: Future.wait([
+                    provider.getTotalIncomeByMonth(DateTime.now()),
+                    provider.getTotalExpenseByMonth(DateTime.now()),
+                  ]),
+                  builder: (context, AsyncSnapshot<List<double>> snapshot) {
+                    if (snapshot.hasData) {
+                      final income = snapshot.data![0];
+                      final expense = snapshot.data![1];
+                      final total = income + expense;
 
-                    if (snapshot.hasData && snapshot.data!.isEmpty) {
-                      return Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(screenWidth * 0.08),
-                          child: Column(
-                            children: [
-                              Icon(
-                                Icons.receipt_long,
-                                size: screenWidth * 0.15,
-                                color: AppConstants.textSecondary,
-                              ),
-                              SizedBox(height: screenWidth * 0.04),
-                              Text(
-                                'Belum ada transaksi',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyLarge
-                                    ?.copyWith(
-                                          color: AppConstants.textSecondary,
-                                          fontSize: screenWidth * 0.035,
+                      return Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: PieChart(
+                              PieChartData(
+                                sections: total == 0
+                                    ? [
+                                        PieChartSectionData(
+                                          value: 1,
+                                          color: divider,
+                                          radius: 35,
+                                          showTitle: false,
                                         ),
+                                      ]
+                                    : [
+                                        if (income > 0)
+                                          PieChartSectionData(
+                                            value: income,
+                                            color: AppConstants.successColor,
+                                            radius: 35,
+                                            title:
+                                                '${((income / total) * 100).toInt()}%',
+                                            titleStyle: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            titlePositionPercentageOffset: 0.55,
+                                          ),
+                                        if (expense > 0)
+                                          PieChartSectionData(
+                                            value: expense,
+                                            color: AppConstants.errorColor,
+                                            radius: 35,
+                                            title:
+                                                '${((expense / total) * 100).toInt()}%',
+                                            titleStyle: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            titlePositionPercentageOffset: 0.55,
+                                          ),
+                                      ],
+                                sectionsSpace: total == 0 ? 0 : 2,
+                                centerSpaceRadius: 25,
                               ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-
-                    if (snapshot.hasError) {
-                      return Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(screenWidth * 0.04),
-                          child: Text(
-                            'Error: ${snapshot.error}',
-                            style: TextStyle(
-                              color: AppConstants.errorColor,
-                              fontSize: screenWidth * 0.035,
                             ),
                           ),
-                        ),
+                          const SizedBox(width: 24),
+                          Expanded(
+                            flex: 3,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildChartLegend(
+                                  context: context,
+                                  color: AppConstants.successColor,
+                                  label: 'Pemasukan',
+                                  value: CurrencyFormatter.formatCompact(income),
+                                  percentage: total > 0
+                                      ? '${((income / total) * 100).toInt()}%'
+                                      : '0%',
+                                ),
+                                const SizedBox(height: 12),
+                                _buildChartLegend(
+                                  context: context,
+                                  color: AppConstants.errorColor,
+                                  label: 'Pengeluaran',
+                                  value: CurrencyFormatter.formatCompact(expense),
+                                  percentage: total > 0
+                                      ? '${((expense / total) * 100).toInt()}%'
+                                      : '0%',
+                                ),
+                                const SizedBox(height: 12),
+                                Divider(height: 1, color: divider),
+                                const SizedBox(height: 12),
+                                _buildChartLegend(
+                                  context: context,
+                                  color: AppConstants.primaryColor,
+                                  label: 'Sisa',
+                                  value: CurrencyFormatter.formatCompact(
+                                    income - expense,
+                                  ),
+                                  percentage: total > 0
+                                      ? '${(((income - expense) / total) * 100).toInt()}%'
+                                      : '0%',
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       );
-
                     }
-
-                    final transactions = snapshot.data ?? [];
-                    return ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: transactions.length,
-                      separatorBuilder: (context, index) => const Divider(),
-                      itemBuilder: (context, index) {
-                        final transaction = transactions[index];
-                        return _buildTransactionItem(transaction);
-                      },
-                    );
+                    return const Center(child: CircularProgressIndicator(strokeWidth: 2));
                   },
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
-  Widget _buildTransactionItem(dynamic transaction) {
+  Widget _buildChartLegend({
+    required BuildContext context,
+    required Color color,
+    required String label,
+    required String value,
+    String? percentage,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final textPrimary = cs.onSurface;
+    final textSecondary = cs.onSurface.withOpacity(0.55);
+
+    return Row(
+      children: [
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(4),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: textSecondary,
+                ),
+              ),
+              if (percentage != null)
+                Text(
+                  percentage,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: textPrimary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRecentTransactions(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final cardBg = cs.surface;
+    final textPrimary = cs.onSurface;
+    final textSecondary = cs.onSurface.withOpacity(0.55);
+    final divider = cs.onSurface.withOpacity(0.12);
+
+    return Consumer<TransactionProvider>(
+      builder: (context, provider, child) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: cardBg,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Transaksi Terbaru',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: textPrimary,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {},
+                    child: Text(
+                      'Lihat Semua',
+                      style: TextStyle(
+                        color: AppConstants.primaryColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              FutureBuilder(
+                future: provider.getRecentTransactions(5),
+                builder: (context, AsyncSnapshot<List> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasData && snapshot.data!.isEmpty) {
+                    return Container(
+                      height: 150,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.receipt_long_outlined,
+                            size: 48,
+                            color: textSecondary.withOpacity(0.5),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Belum ada transaksi',
+                            style: TextStyle(
+                              color: textSecondary,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Text(
+                          'Error: ${snapshot.error}',
+                          style: TextStyle(color: AppConstants.errorColor),
+                        ),
+                      ),
+                    );
+                  }
+
+                  final transactions = snapshot.data ?? [];
+                  return ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: transactions.length,
+                    separatorBuilder: (context, index) => Divider(
+                      color: divider,
+                      height: 1,
+                    ),
+                    itemBuilder: (context, index) {
+                      final transaction = transactions[index];
+                      return _buildTransactionItem(context, transaction);
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTransactionItem(BuildContext context, dynamic transaction) {
+    final cs = Theme.of(context).colorScheme;
+    final textPrimary = cs.onSurface;
+    final textSecondary = cs.onSurface.withOpacity(0.55);
+
     final isExpense = transaction.type == TransactionType.expense;
     final amount = transaction.amount;
     final category = transaction.category;
     final date = transaction.date;
-    final screenWidth = MediaQuery.of(context).size.width;
 
-    return ListTile(
-      leading: Container(
-        width: screenWidth * 0.11,
-        height: screenWidth * 0.11,
-        decoration: BoxDecoration(
-          color: isExpense
-              ? AppConstants.errorColor.withOpacity(0.1)
-              : AppConstants.successColor.withOpacity(0.1),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          isExpense ? Icons.arrow_upward : Icons.arrow_downward,
-          color: isExpense
-              ? AppConstants.errorColor
-              : AppConstants.successColor,
-          size: screenWidth * 0.05,
-        ),
-      ),
-      title: Text(
-        category,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontSize: screenWidth * 0.04,
-        ),
-      ),
-      subtitle: Text(
-        DateFormatter.formatRelativeDate(date),
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-          fontSize: screenWidth * 0.03,
-        ),
-      ),
-      trailing: FittedBox(
-        child: Text(
-          '${isExpense ? '-' : '+'}${CurrencyFormatter.formatCurrency(amount)}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: isExpense
-                    ? AppConstants.errorColor
-                    : AppConstants.successColor,
-                fontWeight: FontWeight.bold,
-                fontSize: screenWidth * 0.035,
-              ),
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: (isExpense
+                      ? AppConstants.errorColor
+                      : AppConstants.successColor)
+                  .withOpacity(0.1),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              isExpense
+                  ? Icons.arrow_upward_rounded
+                  : Icons.arrow_downward_rounded,
+              color: isExpense
+                  ? AppConstants.errorColor
+                  : AppConstants.successColor,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  category,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  DateFormatter.formatRelativeDate(date),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            '${isExpense ? '-' : '+'}${CurrencyFormatter.formatCompact(amount)}',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: isExpense
+                  ? AppConstants.errorColor
+                  : AppConstants.successColor,
+            ),
+          ),
+        ],
       ),
     );
   }

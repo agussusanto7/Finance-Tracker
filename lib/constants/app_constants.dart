@@ -5,56 +5,56 @@ class AppConstants {
   static const String appName = 'FinanceTracker';
   static const String appVersion = '1.0.0';
 
-  // BNI Branding Colors
-  static const Color primaryOrange = Color(0xFFFF6B00);
-  static const Color primaryRed = Color(0xFFE63946);
-  static const Color gradientStart = Color(0xFFFF6B00);
-  static const Color gradientEnd = Color(0xFFE63946);
-
+  // Professional Color Palette
+  static const Color primaryColor = Color(0xFF5B61E0);
+  static const Color gradientEnd = Color(0xFF8E54E9);
+  static const Color primaryOrange = Color(0xFF5B61E0);
+  static const Color primaryRed = Color(0xFF8E54E9);
 
   // UI Colors
-  static const Color backgroundColor = Color(0xFFF5F5F5);
-  static const Color cardColor = Colors.white;
-  static const Color textPrimary = Color(0xFF212121);
-  static const Color textSecondary = Color(0xFF757575);
-  static const Color dividerColor = Color(0xFFE0E0E0);
-  static const Color successColor = Color(0xFF4CAF50);
-  static const Color warningColor = Color(0xFFFF9800);
-  static const Color errorColor = Color(0xFFF44336);
-  static const Color infoColor = Color(0xFF2196F3);
+  static const Color backgroundColor = Color(0xFFF4F5F9);
+  static const Color cardBackground = Color(0xFFFFFFFF);
+  static const Color cardColor = Color(0xFFFFFFFF);
+  static const Color textPrimary = Color(0xFF1A1D26);
+  static const Color textSecondary = Color(0xFF8F95A3);
+  static const Color dividerColor = Color(0xFFE8E9EE);
+  static const Color successColor = Color(0xFF2ED573);
+  static const Color warningColor = Color(0xFFFFA502);
+  static const Color errorColor = Color(0xFFFF4757);
+  static const Color infoColor = Color(0xFF5352ED);
 
   // Category Colors
   static const List<Color> categoryColors = [
-    Color(0xFFFF6B00), // Orange
-    Color(0xFFE63946), // Red
-    Color(0xFF4CAF50), // Green
-    Color(0xFF2196F3), // Blue
-    Color(0xFFFF9800), // Amber
-    Color(0xFF9C27B0), // Purple
-    Color(0xFF00BCD4), // Cyan
-    Color(0xFFFFEB3B), // Yellow
-    Color(0xFF795548), // Brown
-    Color(0xFF607D8B), // Blue Grey
+    Color(0xFF5B61E0), // Purple Blue
+    Color(0xFF8E54E9), // Purple
+    Color(0xFF2ED573), // Green
+    Color(0xFFFF4757), // Red
+    Color(0xFFFFA502), // Orange
+    Color(0xFF1E90FF), // Blue
+    Color(0xFFFF6B81), // Pink
+    Color(0xFF00CEC9), // Teal
+    Color(0xFFA29BFE), // Light Purple
+    Color(0xFFFD79A8), // Light Pink
   ];
 
   // Default Categories
   static const List<Map<String, dynamic>> defaultExpenseCategories = [
-    {'name': 'Makanan', 'icon': 'restaurant', 'color': '#FF6B00'},
-    {'name': 'Transportasi', 'icon': 'directions_car', 'color': '#2196F3'},
-    {'name': 'Belanja', 'icon': 'shopping_cart', 'color': '#E91E63'},
-    {'name': 'Tagihan', 'icon': 'receipt', 'color': '#F44336'},
-    {'name': 'Hiburan', 'icon': 'movie', 'color': '#9C27B0'},
-    {'name': 'Kesehatan', 'icon': 'local_hospital', 'color': '#4CAF50'},
-    {'name': 'Pendidikan', 'icon': 'school', 'color': '#00BCD4'},
-    {'name': 'Lainnya', 'icon': 'more_horiz', 'color': '#607D8B'},
+    {'name': 'Makanan', 'icon': 'restaurant', 'color': '#FF6B81'},
+    {'name': 'Transportasi', 'icon': 'directions_car', 'color': '#1E90FF'},
+    {'name': 'Belanja', 'icon': 'shopping_cart', 'color': '#A29BFE'},
+    {'name': 'Tagihan', 'icon': 'receipt', 'color': '#FF4757'},
+    {'name': 'Hiburan', 'icon': 'movie', 'color': '#FFA502'},
+    {'name': 'Kesehatan', 'icon': 'local_hospital', 'color': '#2ED573'},
+    {'name': 'Pendidikan', 'icon': 'school', 'color': '#00CEC9'},
+    {'name': 'Lainnya', 'icon': 'more_horiz', 'color': '#8F95A3'},
   ];
 
   static const List<Map<String, dynamic>> defaultIncomeCategories = [
-    {'name': 'Gaji', 'icon': 'work', 'color': '#4CAF50'},
-    {'name': 'Bonus', 'icon': 'card_giftcard', 'color': '#FF9800'},
-    {'name': 'Investasi', 'icon': 'trending_up', 'color': '#2196F3'},
-    {'name': 'Hadiah', 'icon': 'redeem', 'color': '#E91E63'},
-    {'name': 'Lainnya', 'icon': 'more_horiz', 'color': '#607D8B'},
+    {'name': 'Gaji', 'icon': 'work', 'color': '#2ED573'},
+    {'name': 'Bonus', 'icon': 'card_giftcard', 'color': '#FFA502'},
+    {'name': 'Investasi', 'icon': 'trending_up', 'color': '#1E90FF'},
+    {'name': 'Hadiah', 'icon': 'redeem', 'color': '#A29BFE'},
+    {'name': 'Lainnya', 'icon': 'more_horiz', 'color': '#8F95A3'},
   ];
 
   // Animation Durations
@@ -91,15 +91,15 @@ class AppConstants {
 
   // Chart Colors
   static const List<Color> chartColors = [
-    Color(0xFFFF6B00),
-    Color(0xFFE63946),
-    Color(0xFF4CAF50),
-    Color(0xFF2196F3),
-    Color(0xFFFF9800),
-    Color(0xFF9C27B0),
-    Color(0xFF00BCD4),
-    Color(0xFFFFEB3B),
-    Color(0xFF795548),
-    Color(0xFF607D8B),
+    Color(0xFF5B61E0),
+    Color(0xFF8E54E9),
+    Color(0xFF2ED573),
+    Color(0xFFFF4757),
+    Color(0xFFFFA502),
+    Color(0xFF1E90FF),
+    Color(0xFFFF6B81),
+    Color(0xFF00CEC9),
+    Color(0xFFA29BFE),
+    Color(0xFFFD79A8),
   ];
 }

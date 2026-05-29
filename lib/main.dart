@@ -7,6 +7,7 @@ import 'providers/transaction_provider.dart';
 import 'providers/budget_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/user_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home/main_screen.dart';
 
@@ -27,49 +28,41 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: Consumer<UserProvider>(
-        builder: (context, userProvider, child) {
-          return FutureBuilder<bool>(
-            future: userProvider.isDarkMode(),
-            builder: (context, snapshot) {
-              final isDarkMode = snapshot.data ?? false;
-
-              return MaterialApp(
-                title: 'Finance Tracker',
-                debugShowCheckedModeBanner: false,
-                theme: AppTheme.lightTheme,
-                darkTheme: AppTheme.darkTheme,
-                themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
-                home: const SplashScreen(),
-                onGenerateRoute: (settings) {
-                  switch (settings.name) {
-                    case '/splash':
-                      return MaterialPageRoute(
-                        builder: (context) => const SplashScreen(),
-                      );
-                    case '/main':
-                      return MaterialPageRoute(
-                        builder: (context) => const MainScreen(),
-                      );
-                    default:
-                      return MaterialPageRoute(
-                        builder: (context) => const SplashScreen(),
-                      );
-                  }
-                },
-                // Add responsive builder for old/small devices
-                builder: (context, child) {
-                  return MediaQuery(
-                    data: MediaQuery.of(context).copyWith(
-                      // Limit text scale factor to prevent overflow on small screens
-                      textScaler: TextScaler.linear(
-                        MediaQuery.of(context).textScaleFactor.clamp(0.8, 1.2),
-                      ),
-                    ),
-                    child: child!,
+      child: Consumer2<UserProvider, ThemeProvider>(
+        builder: (context, userProvider, themeProvider, child) {
+          return MaterialApp(
+            title: 'Moneyger',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            home: const SplashScreen(),
+            onGenerateRoute: (settings) {
+              switch (settings.name) {
+                case '/splash':
+                  return MaterialPageRoute(
+                    builder: (context) => const SplashScreen(),
                   );
-                },
+                case '/main':
+                  return MaterialPageRoute(
+                    builder: (context) => const MainScreen(),
+                  );
+                default:
+                  return MaterialPageRoute(
+                    builder: (context) => const SplashScreen(),
+                  );
+              }
+            },
+            builder: (context, child) {
+              return MediaQuery(
+                data: MediaQuery.of(context).copyWith(
+                  textScaler: TextScaler.linear(
+                    MediaQuery.of(context).textScaler.scale(1.0).clamp(0.8, 1.2),
+                  ),
+                ),
+                child: child!,
               );
             },
           );

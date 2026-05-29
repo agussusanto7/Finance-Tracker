@@ -3,8 +3,7 @@ Pengaruh Kualitas Dataset terhadap Akurasi Model Machine Learning pada Prediksi 
 
 
 Disusun Oleh:
-Azis Disha Rono Suryo
-202310370311300
+
 
 
 

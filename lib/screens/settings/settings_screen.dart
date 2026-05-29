@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../constants/app_constants.dart';
-import '../../constants/app_theme.dart';
 import '../../providers/user_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../budget/budget_screen.dart';
 import '../gallery/gallery_screen.dart';
 
@@ -13,8 +13,13 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = provider.isDarkMode;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Pengaturan')),
+      appBar: AppBar(
+        title: const Text('Pengaturan'),
+      ),
       body: SingleChildScrollView(
         child: Consumer<UserProvider>(
           builder: (context, userProvider, child) {
@@ -27,17 +32,17 @@ class SettingsScreen extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.person_off,
                         size: 64,
-                        color: AppConstants.textSecondary,
+                        color: isDarkMode ? Colors.white30 : AppConstants.textSecondary,
                       ),
                       const SizedBox(height: AppConstants.paddingMedium),
-                      const Text(
+                      Text(
                         'Data profil belum diisi',
                         style: TextStyle(
                           fontSize: 16,
-                          color: AppConstants.textSecondary,
+                          color: isDarkMode ? Colors.white60 : AppConstants.textSecondary,
                         ),
                       ),
                       const SizedBox(height: AppConstants.paddingLarge),
@@ -53,9 +58,9 @@ class SettingsScreen extends StatelessWidget {
 
             return Column(
               children: [
-                _buildProfileHeader(context, userProvider),
+                _buildProfileHeader(context, userProvider, isDarkMode),
                 const SizedBox(height: AppConstants.paddingMedium),
-                _buildSettingsSection(context, userProvider),
+                _buildSettingsSection(context, userProvider, isDarkMode),
               ],
             );
           },
@@ -64,7 +69,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileHeader(BuildContext context, UserProvider userProvider) {
+  Widget _buildProfileHeader(BuildContext context, UserProvider userProvider, bool isDarkMode) {
     final user = userProvider.user!;
     final hasPhoto = user.photoPath != null;
     final photoFile = hasPhoto ? File(user.photoPath!) : null;
@@ -73,24 +78,24 @@ class SettingsScreen extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppConstants.paddingLarge),
-      decoration: AppTheme.appBarGradient,
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF1A1A1A) : AppConstants.cardColor,
+      ),
       child: Column(
         children: [
           Stack(
             children: [
               CircleAvatar(
                 radius: 50,
-                backgroundColor: Colors.white,
-                backgroundImage: photoExists
-                    ? FileImage(photoFile!)
-                    : const AssetImage('assets/images/profil.png'),
+                backgroundColor: AppConstants.primaryColor.withValues(alpha: 0.1),
+                backgroundImage: photoExists ? FileImage(photoFile!) : null,
                 child: !photoExists
                     ? Text(
                         user.name[0].toUpperCase(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
-                          color: AppConstants.primaryOrange,
+                          color: AppConstants.primaryColor,
                         ),
                       )
                     : null,
@@ -104,16 +109,15 @@ class SettingsScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
+                        color: Colors.black.withValues(alpha: 0.2),
                         blurRadius: 4,
                       ),
                     ],
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.camera_alt),
-                    color: AppConstants.primaryOrange,
-                    onPressed: () =>
-                        _showPhotoSourceDialog(context, userProvider),
+                    color: AppConstants.primaryColor,
+                    onPressed: () => _showPhotoSourceDialog(context, userProvider),
                   ),
                 ),
               ),
@@ -123,8 +127,8 @@ class SettingsScreen extends StatelessWidget {
           Text(
             user.name,
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              color: Colors.white,
               fontWeight: FontWeight.bold,
+              color: isDarkMode ? Colors.white : AppConstants.textPrimary,
             ),
           ),
         ],
@@ -135,6 +139,7 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildSettingsSection(
     BuildContext context,
     UserProvider userProvider,
+    bool isDarkMode,
   ) {
     final user = userProvider.user!;
 
@@ -143,17 +148,18 @@ class SettingsScreen extends StatelessWidget {
         _buildSettingCard(
           context,
           title: 'Profil',
+          isDarkMode: isDarkMode,
           children: [
             ListTile(
-              leading: const Icon(Icons.person),
+              leading: const Icon(Icons.person_outline),
               title: const Text('Nama'),
               subtitle: Text(user.name),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _showEditNameDialog(context, userProvider),
             ),
-            const Divider(),
+            const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.pin),
+              leading: const Icon(Icons.lock_outline),
               title: const Text('Ubah PIN'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _showChangePinDialog(context, userProvider),
@@ -163,9 +169,21 @@ class SettingsScreen extends StatelessWidget {
         _buildSettingCard(
           context,
           title: 'Preferensi',
+          isDarkMode: isDarkMode,
           children: [
             SwitchListTile(
-              secondary: const Icon(Icons.visibility_off),
+              secondary: const Icon(Icons.dark_mode_outlined),
+              title: const Text('Tema Gelap'),
+              subtitle: const Text('Ganti ke tema gelap'),
+              value: isDarkMode,
+              onChanged: (value) {
+                final provider = Provider.of<ThemeProvider>(context, listen: false);
+                provider.toggleDarkMode();
+              },
+            ),
+            const Divider(height: 1),
+            SwitchListTile(
+              secondary: const Icon(Icons.visibility_off_outlined),
               title: const Text('Sembunyikan Saldo'),
               subtitle: const Text('Sembunyikan nominal saldo di dashboard'),
               value: user.balanceHidden,
@@ -173,7 +191,7 @@ class SettingsScreen extends StatelessWidget {
                 userProvider.toggleBalanceHidden();
               },
             ),
-            const Divider(),
+            const Divider(height: 1),
             SwitchListTile(
               secondary: const Icon(Icons.fingerprint),
               title: const Text('Autentikasi Biometrik'),
@@ -188,9 +206,10 @@ class SettingsScreen extends StatelessWidget {
         _buildSettingCard(
           context,
           title: 'Budget & Kategori',
+          isDarkMode: isDarkMode,
           children: [
             ListTile(
-              leading: const Icon(Icons.account_balance_wallet),
+              leading: const Icon(Icons.account_balance_wallet_outlined),
               title: const Text('Kelola Budget'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
@@ -200,18 +219,16 @@ class SettingsScreen extends StatelessWidget {
                 );
               },
             ),
-            const Divider(),
+            const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.category),
+              leading: const Icon(Icons.category_outlined),
               title: const Text('Kelola Kategori'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                // TODO: Navigate to category management screen
-              },
+              onTap: () {},
             ),
-            const Divider(),
+            const Divider(height: 1),
             ListTile(
-              leading: const Icon(Icons.photo_library),
+              leading: const Icon(Icons.photo_library_outlined),
               title: const Text('Galeri Bukti Transaksi'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () {
@@ -228,9 +245,10 @@ class SettingsScreen extends StatelessWidget {
         _buildSettingCard(
           context,
           title: 'Lainnya',
+          isDarkMode: isDarkMode,
           children: [
             ListTile(
-              leading: const Icon(Icons.info),
+              leading: const Icon(Icons.info_outline),
               title: const Text('Tentang Aplikasi'),
               subtitle: Text('Versi ${AppConstants.appVersion}'),
               trailing: const Icon(Icons.chevron_right),
@@ -238,7 +256,7 @@ class SettingsScreen extends StatelessWidget {
                 _showAboutDialog(context);
               },
             ),
-            const Divider(),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.logout, color: AppConstants.errorColor),
               title: const Text(
@@ -251,6 +269,7 @@ class SettingsScreen extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: AppConstants.paddingLarge),
       ],
     );
   }
@@ -259,11 +278,19 @@ class SettingsScreen extends StatelessWidget {
     BuildContext context, {
     required String title,
     required List<Widget> children,
+    required bool isDarkMode,
   }) {
-    return Card(
+    return Container(
       margin: const EdgeInsets.symmetric(
         horizontal: AppConstants.paddingMedium,
         vertical: AppConstants.paddingSmall,
+      ),
+      decoration: BoxDecoration(
+        color: isDarkMode ? const Color(0xFF1A1A1A) : Colors.white,
+        borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+        border: Border.all(
+          color: isDarkMode ? const Color(0xFF3D3D3D) : AppConstants.dividerColor,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,9 +299,10 @@ class SettingsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(AppConstants.paddingMedium),
             child: Text(
               title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isDarkMode ? Colors.white : AppConstants.textPrimary,
+              ),
             ),
           ),
           ...children,
@@ -393,13 +421,20 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       applicationName: AppConstants.appName,
       applicationVersion: AppConstants.appVersion,
-      applicationIcon: const Icon(
-        Icons.account_balance_wallet,
-        size: 48,
-        color: AppConstants.primaryOrange,
+      applicationIcon: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppConstants.primaryColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(
+          Icons.account_balance_wallet,
+          size: 48,
+          color: AppConstants.primaryColor,
+        ),
       ),
       children: [
-        const Text('Aplikasi manajemen keuangan pribadi dengan UI modern'),
+        const Text('Aplikasi manajemen keuangan pribadi dengan UI modern dan profesional'),
       ],
     );
   }
@@ -419,7 +454,6 @@ class SettingsScreen extends StatelessWidget {
             onPressed: () {
               userProvider.logout();
               Navigator.pop(context);
-              // Navigate back to splash or login screen
               Navigator.pushReplacementNamed(context, '/splash');
             },
             style: ElevatedButton.styleFrom(
@@ -444,7 +478,7 @@ class _ChangePinDialogState extends State<_ChangePinDialog> {
   final List<String> _oldPin = [];
   final List<String> _newPin = [];
   final List<String> _confirmPin = [];
-  int _step = 0; // 0: enter old, 1: enter new, 2: confirm new
+  int _step = 0;
   String _errorMessage = '';
 
   void _addDigit(String digit) {
@@ -462,9 +496,7 @@ class _ChangePinDialogState extends State<_ChangePinDialog> {
           _newPin.add(digit);
           if (_newPin.length == 6) {
             Future.delayed(const Duration(milliseconds: 300), () {
-              setState(() {
-                _step = 2;
-              });
+              setState(() => _step = 2);
             });
           }
         }
@@ -498,9 +530,7 @@ class _ChangePinDialogState extends State<_ChangePinDialog> {
 
     if (userProvider.user?.pin == oldPinEntered) {
       Future.delayed(const Duration(milliseconds: 300), () {
-        setState(() {
-          _step = 1;
-        });
+        setState(() => _step = 1);
       });
     } else {
       setState(() {
@@ -538,9 +568,9 @@ class _ChangePinDialogState extends State<_ChangePinDialog> {
 
     if (mounted) {
       Navigator.pop(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('PIN berhasil diubah')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('PIN berhasil diubah')),
+      );
     }
   }
 
@@ -635,7 +665,7 @@ class _ChangePinDialogState extends State<_ChangePinDialog> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: index < pin.length
-                  ? AppConstants.primaryOrange
+                  ? AppConstants.primaryColor
                   : AppConstants.dividerColor,
             ),
           ),
@@ -692,7 +722,7 @@ class _ChangePinDialogState extends State<_ChangePinDialog> {
           child: Text(
             number,
             style: Theme.of(context).textTheme.displayMedium?.copyWith(
-              color: AppConstants.primaryOrange,
+              color: AppConstants.primaryColor,
             ),
           ),
         ),
@@ -718,7 +748,7 @@ class _ChangePinDialogState extends State<_ChangePinDialog> {
             Icons.backspace,
             color: currentPinLength > 0
                 ? AppConstants.textSecondary
-                : AppConstants.textSecondary.withOpacity(0.3),
+                : AppConstants.textSecondary.withValues(alpha: 0.3),
           ),
         ),
       ),

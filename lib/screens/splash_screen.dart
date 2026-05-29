@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../constants/app_constants.dart';
-import '../constants/app_theme.dart';
 import 'onboarding/onboarding_screen.dart';
 import 'auth/pin_screen.dart';
 import 'home/main_screen.dart';
@@ -18,17 +17,30 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: AppConstants.defaultAnimationDuration,
+      duration: const Duration(milliseconds: 1500),
     );
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+      ),
     );
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack),
+      ),
+    );
+
     _animationController.forward();
     _navigateToNextScreen();
   }
@@ -44,24 +56,46 @@ class _SplashScreenState extends State<SplashScreen>
     if (!onboarded) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const OnboardingScreen(),
+          transitionsBuilder:
+              (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
       );
     } else {
-      // Check if user exists and PIN is set
       await userProvider.loadUser();
       final user = userProvider.user;
       final pinSet = await userProvider.isPinSet();
 
-      // Always show PIN screen if user exists and has PIN set
       if (user != null && user.pin != null && user.pin!.isNotEmpty && pinSet) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const PinScreen()),
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const PinScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 400),
+          ),
         );
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainScreen()),
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const MainScreen(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+            transitionDuration: const Duration(milliseconds: 400),
+          ),
         );
       }
     }
@@ -75,68 +109,103 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 360;
-
     return Scaffold(
-      body: SafeArea(
-        child: Container(
-          decoration: AppTheme.appBarGradient,
-          child: Center(
-            child: FadeTransition(
-              opacity: _fadeAnimation,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(screenWidth * 0.08),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: isSmallScreen ? screenWidth * 0.25 : 120,
-                      height: isSmallScreen ? screenWidth * 0.25 : 120,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              AppConstants.primaryColor,
+              AppConstants.gradientEnd,
+            ],
+          ),
+        ),
+        child: Center(
+          child: AnimatedBuilder(
+            animation: _animationController,
+            builder: (context, child) {
+              return FadeTransition(
+                opacity: _fadeAnimation,
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // App icon with gradient background
+                      Container(
+                        width: 140,
+                        height: 140,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(35),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 30,
+                              offset: const Offset(0, 15),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Container(
+                            width: 70,
+                            height: 70,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  AppConstants.primaryColor,
+                                  AppConstants.gradientEnd,
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Icon(
+                              Icons.account_balance_wallet_rounded,
+                              size: 36,
+                              color: Colors.white,
+                            ),
                           ),
-                        ],
+                        ),
                       ),
-                      child: Icon(
-                        Icons.account_balance_wallet,
-                        size: isSmallScreen ? screenWidth * 0.12 : 60,
-                        color: AppConstants.primaryOrange,
+                      const SizedBox(height: 32),
+                      // App name
+                      Text(
+                        AppConstants.appName,
+                        style: const TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 1.5,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: isSmallScreen ? screenWidth * 0.06 : AppConstants.paddingLarge),
-                    Text(
-                      AppConstants.appName,
-                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: isSmallScreen ? screenWidth * 0.07 : null,
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: isSmallScreen ? screenWidth * 0.03 : AppConstants.paddingSmall),
-                    Text(
-                      'Kelola Keuangan dengan Cerdas',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.white.withOpacity(0.9),
-                            fontSize: isSmallScreen ? screenWidth * 0.04 : null,
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: isSmallScreen ? screenWidth * 0.12 : AppConstants.paddingXLarge * 2),
-                    const CircularProgressIndicator(
-                      color: Colors.white,
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+                      Text(
+                        'Kelola Keuangan dengan Cerdas',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white.withOpacity(0.9),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 60),
+                      // Loading indicator
+                      SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 3,
+                          backgroundColor: Colors.white.withOpacity(0.3),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
         ),
       ),

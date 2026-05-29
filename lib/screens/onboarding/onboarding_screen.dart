@@ -17,25 +17,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<OnboardingModel> _pages = [
     OnboardingModel(
-      title: 'Catat Pemasukan & Pengeluaran',
-      description:
-          'Pantau semua keuangan Anda dengan mudah dan cepat di satu aplikasi',
-      icon: Icons.account_balance_wallet,
-      color: AppConstants.primaryOrange,
+      title: 'Catat Keuanganmu',
+      description: 'Pantau semua pemasukan dan pengeluaran dengan mudah di satu tempat',
+      icon: Icons.account_balance_wallet_rounded,
+      color: AppConstants.primaryColor,
     ),
     OnboardingModel(
       title: 'Analisis Pengeluaran',
-      description:
-          'Dapatkan wawasan mendalam tentang kebiasaan pengeluaran Anda',
-      icon: Icons.pie_chart,
-      color: AppConstants.primaryRed,
+      description: 'Lihat grafik dan laporan keuangan untuk memahami kebiasaan belanjamu',
+      icon: Icons.pie_chart_rounded,
+      color: AppConstants.gradientEnd,
     ),
     OnboardingModel(
-      title: 'Atur Budget Bulanan',
-      description:
-          'Tetapkan batas pengeluaran dan capai tujuan keuangan Anda',
-      icon: Icons.savings,
-      color: AppConstants.infoColor,
+      title: 'Atur Budget',
+      description: 'Tetapkan batas pengeluaran bulanan dan capai tujuan keuanganmu',
+      icon: Icons.savings_rounded,
+      color: AppConstants.successColor,
     ),
   ];
 
@@ -63,187 +60,69 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const PinSetupScreen()),
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const PinSetupScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          transitionDuration: const Duration(milliseconds: 400),
+        ),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            // Responsive breakpoints
-            final screenHeight = constraints.maxHeight;
-            final screenWidth = constraints.maxWidth;
-            final isSmallScreen = screenHeight < 600;
-            final isVerySmallScreen = screenHeight < 500;
-            final isMediumScreen = screenHeight >= 600 && screenHeight < 800;
-
-            return Column(
-              children: [
-                Expanded(
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
-                    itemCount: _pages.length,
-                    itemBuilder: (context, index) {
-                      return _buildPage(
-                        _pages[index],
-                        screenHeight: screenHeight,
-                        screenWidth: screenWidth,
-                        isSmallScreen: isSmallScreen,
-                        isVerySmallScreen: isVerySmallScreen,
-                        isMediumScreen: isMediumScreen,
-                      );
-                    },
-                  ),
-                ),
-                _buildBottomSection(
-                  isSmallScreen: isSmallScreen,
-                  isVerySmallScreen: isVerySmallScreen,
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPage(
-    OnboardingModel page, {
-    required double screenHeight,
-    required double screenWidth,
-    required bool isSmallScreen,
-    required bool isVerySmallScreen,
-    required bool isMediumScreen,
-  }) {
-    // Responsive sizing
-    double iconContainerSize;
-    double iconSize;
-    double titleFontSize;
-    double descriptionFontSize;
-    double verticalSpacing;
-    double horizontalPadding;
-
-    if (isVerySmallScreen) {
-      // HP jadul dengan layar sangat kecil (< 500px height)
-      iconContainerSize = screenWidth * 0.3;
-      iconSize = iconContainerSize * 0.5;
-      titleFontSize = 18;
-      descriptionFontSize = 13;
-      verticalSpacing = 12;
-      horizontalPadding = 16;
-    } else if (isSmallScreen) {
-      // HP kecil (500-600px height)
-      iconContainerSize = screenWidth * 0.35;
-      iconSize = iconContainerSize * 0.5;
-      titleFontSize = 20;
-      descriptionFontSize = 14;
-      verticalSpacing = 16;
-      horizontalPadding = 20;
-    } else if (isMediumScreen) {
-      // HP medium (600-800px height)
-      iconContainerSize = screenWidth * 0.4;
-      iconSize = iconContainerSize * 0.5;
-      titleFontSize = 24;
-      descriptionFontSize = 15;
-      verticalSpacing = 24;
-      horizontalPadding = 24;
-    } else {
-      // HP besar/modern (> 800px height)
-      iconContainerSize = screenWidth * 0.45;
-      iconSize = iconContainerSize * 0.5;
-      titleFontSize = 28;
-      descriptionFontSize = 16;
-      verticalSpacing = 32;
-      horizontalPadding = 32;
-    }
-
-    // Batasi ukuran maksimum
-    iconContainerSize = iconContainerSize.clamp(80.0, 220.0);
-    iconSize = iconSize.clamp(40.0, 110.0);
-
-    return SingleChildScrollView(
-      physics: const ClampingScrollPhysics(),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minHeight: screenHeight - _getBottomSectionHeight(isSmallScreen, isVerySmallScreen),
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: horizontalPadding,
-            vertical: isVerySmallScreen ? 8 : 16,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppConstants.primaryColor.withOpacity(0.05),
+              AppConstants.backgroundColor,
+            ],
           ),
+        ),
+        child: SafeArea(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Spacer atas yang fleksibel
-              SizedBox(height: isVerySmallScreen ? 8 : verticalSpacing),
-              
-              // Icon Container
-              Container(
-                width: iconContainerSize,
-                height: iconContainerSize,
-                decoration: BoxDecoration(
-                  color: page.color.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  page.icon,
-                  size: iconSize,
-                  color: page.color,
-                ),
-              ),
-              
-              SizedBox(height: verticalSpacing),
-              
-              // Title
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+              // Skip button
+              Align(
+                alignment: Alignment.topRight,
+                child: TextButton(
+                  onPressed: _currentPage < _pages.length - 1 ? _completeOnboarding : null,
                   child: Text(
-                    page.title,
+                    _currentPage < _pages.length - 1 ? 'Lewati' : '',
                     style: TextStyle(
-                      fontSize: titleFontSize,
-                      fontWeight: FontWeight.bold,
-                      height: 1.2,
+                      color: AppConstants.textSecondary,
+                      fontSize: 14,
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
                   ),
                 ),
               ),
-              
-              SizedBox(height: isVerySmallScreen ? 8 : 12),
-              
-              // Description
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isVerySmallScreen ? 8 : 16,
-                ),
-                child: Text(
-                  page.description,
-                  style: TextStyle(
-                    fontSize: descriptionFontSize,
-                    color: AppConstants.textSecondary,
-                    height: 1.4,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
+              // Page content
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                  },
+                  itemCount: _pages.length,
+                  itemBuilder: (context, index) {
+                    return _buildPage(_pages[index], screenWidth);
+                  },
                 ),
               ),
-              
-              // Spacer bawah yang fleksibel
-              SizedBox(height: isVerySmallScreen ? 8 : verticalSpacing),
+              // Bottom section
+              _buildBottomSection(screenWidth),
             ],
           ),
         ),
@@ -251,101 +130,135 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  double _getBottomSectionHeight(bool isSmallScreen, bool isVerySmallScreen) {
-    if (isVerySmallScreen) return 100;
-    if (isSmallScreen) return 120;
-    return 150;
-  }
-
-  Widget _buildBottomSection({
-    required bool isSmallScreen,
-    required bool isVerySmallScreen,
-  }) {
-    final double padding = isVerySmallScreen ? 12 : (isSmallScreen ? 16 : 24);
-    final double buttonHeight = isVerySmallScreen ? 44 : (isSmallScreen ? 48 : 52);
-    final double buttonFontSize = isVerySmallScreen ? 14 : 16;
-    final double indicatorSpacing = isVerySmallScreen ? 12 : 20;
-
-    return Container(
-      padding: EdgeInsets.all(padding),
+  Widget _buildPage(OnboardingModel page, double screenWidth) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Page Indicators
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              _pages.length,
-              (index) => _buildPageIndicator(
-                index == _currentPage,
-                isSmallScreen: isSmallScreen,
+          // Icon container with gradient background
+          Container(
+            width: screenWidth * 0.5,
+            height: screenWidth * 0.5,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  page.color.withOpacity(0.2),
+                  page.color.withOpacity(0.1),
+                ],
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: Center(
+              child: Container(
+                width: screenWidth * 0.35,
+                height: screenWidth * 0.35,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: page.color.withOpacity(0.3),
+                      blurRadius: 30,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Icon(
+                  page.icon,
+                  size: screenWidth * 0.18,
+                  color: page.color,
+                ),
               ),
             ),
           ),
-          
-          SizedBox(height: indicatorSpacing),
-          
-          // Button Lanjut/Mulai
-          SizedBox(
-            width: double.infinity,
-            height: buttonHeight,
-            child: ElevatedButton(
-              onPressed: _nextPage,
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(isSmallScreen ? 8 : 12),
-                ),
-              ),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  _currentPage == _pages.length - 1 ? 'Mulai' : 'Lanjut',
-                  style: TextStyle(fontSize: buttonFontSize),
-                ),
-              ),
+          const SizedBox(height: 48),
+          // Title
+          Text(
+            page.title,
+            style: TextStyle(
+              fontSize: 28,
+              fontWeight: FontWeight.bold,
+              color: AppConstants.textPrimary,
             ),
+            textAlign: TextAlign.center,
           ),
-          
-          // Button Lewati (hanya tampil jika bukan halaman terakhir)
-          if (_currentPage < _pages.length - 1)
-            SizedBox(
-              height: isVerySmallScreen ? 32 : 40,
-              child: TextButton(
-                onPressed: _completeOnboarding,
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: isVerySmallScreen ? 4 : 8,
-                  ),
-                ),
-                child: Text(
-                  'Lewati',
-                  style: TextStyle(
-                    fontSize: isVerySmallScreen ? 13 : 14,
-                  ),
-                ),
-              ),
-            )
-          else
-            SizedBox(height: isVerySmallScreen ? 32 : 40),
+          const SizedBox(height: 16),
+          // Description
+          Text(
+            page.description,
+            style: TextStyle(
+              fontSize: 16,
+              color: AppConstants.textSecondary,
+              height: 1.5,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildPageIndicator(bool isActive, {required bool isSmallScreen}) {
-    final double height = isSmallScreen ? 6 : 8;
-    final double activeWidth = isSmallScreen ? 18 : 24;
-    final double inactiveWidth = isSmallScreen ? 6 : 8;
-
-    return AnimatedContainer(
-      duration: AppConstants.fastAnimationDuration,
-      margin: EdgeInsets.symmetric(horizontal: isSmallScreen ? 3 : 4),
-      height: height,
-      width: isActive ? activeWidth : inactiveWidth,
-      decoration: BoxDecoration(
-        color: isActive ? AppConstants.primaryOrange : AppConstants.dividerColor,
-        borderRadius: BorderRadius.circular(height / 2),
+  Widget _buildBottomSection(double screenWidth) {
+    return Container(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        children: [
+          // Page indicator
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(
+              _pages.length,
+              (index) => AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                width: _currentPage == index ? 32 : 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: _currentPage == index
+                      ? AppConstants.primaryColor
+                      : AppConstants.dividerColor,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+          // Continue button
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: _nextPage,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppConstants.primaryColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                elevation: 0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _currentPage == _pages.length - 1 ? 'Mulai' : 'Lanjut',
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (_currentPage < _pages.length - 1) ...[
+                    const SizedBox(width: 8),
+                    const Icon(Icons.arrow_forward_rounded, size: 20),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

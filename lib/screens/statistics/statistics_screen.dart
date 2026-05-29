@@ -5,6 +5,7 @@ import '../../constants/app_constants.dart';
 import '../../models/transaction_model.dart';
 import '../../providers/transaction_provider.dart';
 import '../../utils/currency_formatter.dart';
+import '../../utils/date_formatter.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -13,25 +14,60 @@ class StatisticsScreen extends StatefulWidget {
   State<StatisticsScreen> createState() => _StatisticsScreenState();
 }
 
-class _StatisticsScreenState extends State<StatisticsScreen> {
-  int _selectedPeriod = 0;
+class _StatisticsScreenState extends State<StatisticsScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  int _selectedPeriod = 1;
   final List<String> _periods = ['Minggu Ini', 'Bulan Ini', 'Tahun Ini'];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+    _tabController.addListener(() {
+      setState(() {
+        _selectedPeriod = _tabController.index;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Statistik & Laporan')),
+      backgroundColor: AppConstants.backgroundColor,
+      appBar: AppBar(
+        backgroundColor: AppConstants.cardBackground,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          'Statistik',
+          style: TextStyle(
+            color: AppConstants.textPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: AppConstants.textPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.04),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildPeriodSelector(),
-            SizedBox(height: MediaQuery.of(context).size.width * 0.04),
+            const SizedBox(height: 24),
             _buildSummaryCards(),
-            SizedBox(height: MediaQuery.of(context).size.width * 0.04),
+            const SizedBox(height: 24),
             _buildIncomeExpenseChart(),
-            SizedBox(height: MediaQuery.of(context).size.width * 0.04),
+            const SizedBox(height: 24),
             _buildCategoryBreakdown(),
           ],
         ),
@@ -40,12 +76,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _buildPeriodSelector() {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.02),
+      padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppConstants.cardColor,
-        borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+        color: AppConstants.cardBackground,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         children: List.generate(_periods.length, (index) {
@@ -53,29 +88,24 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           return Expanded(
             child: GestureDetector(
               onTap: () {
-                setState(() {
-                  _selectedPeriod = index;
-                });
+                _tabController.animateTo(index);
               },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: screenWidth * 0.04),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 12),
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? AppConstants.primaryOrange
+                      ? AppConstants.primaryColor
                       : Colors.transparent,
-                  borderRadius: BorderRadius.circular(
-                    AppConstants.radiusMedium,
-                  ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   _periods[index],
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: isSelected ? Colors.white : AppConstants.textPrimary,
-                    fontWeight: isSelected
-                        ? FontWeight.w600
-                        : FontWeight.normal,
-                    fontSize: screenWidth * 0.032,
+                    color: isSelected ? Colors.white : AppConstants.textSecondary,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontSize: 13,
                   ),
                 ),
               ),
@@ -93,7 +123,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           future: _getPeriodData(provider),
           builder: (context, AsyncSnapshot<Map<String, double>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return _buildLoadingCards();
             }
 
             final income = snapshot.data?['income'] ?? 0.0;
@@ -109,26 +139,26 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                         title: 'Pemasukan',
                         amount: income,
                         color: AppConstants.successColor,
-                        icon: Icons.arrow_downward,
+                        icon: Icons.arrow_downward_rounded,
                       ),
                     ),
-                    const SizedBox(width: AppConstants.paddingMedium),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: _buildSummaryCard(
                         title: 'Pengeluaran',
                         amount: expense,
                         color: AppConstants.errorColor,
-                        icon: Icons.arrow_upward,
+                        icon: Icons.arrow_upward_rounded,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: AppConstants.paddingMedium),
+                const SizedBox(height: 12),
                 _buildSummaryCard(
                   title: 'Saldo',
                   amount: balance,
-                  color: AppConstants.infoColor,
-                  icon: Icons.account_balance_wallet,
+                  color: AppConstants.primaryColor,
+                  icon: Icons.account_balance_wallet_rounded,
                   isFullWidth: true,
                 ),
               ],
@@ -139,6 +169,35 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
+  Widget _buildLoadingCards() {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(child: _buildShimmerCard()),
+            const SizedBox(width: 12),
+            Expanded(child: _buildShimmerCard()),
+          ],
+        ),
+        const SizedBox(height: 12),
+        _buildShimmerCard(),
+      ],
+    );
+  }
+
+  Widget _buildShimmerCard() {
+    return Container(
+      height: 100,
+      decoration: BoxDecoration(
+        color: AppConstants.cardBackground,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: const Center(
+        child: CircularProgressIndicator(strokeWidth: 2),
+      ),
+    );
+  }
+
   Widget _buildSummaryCard({
     required String title,
     required double amount,
@@ -146,15 +205,25 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     required IconData icon,
     bool isFullWidth = false,
   }) {
-    final screenWidth = MediaQuery.of(context).size.width;
     return Container(
       width: isFullWidth ? double.infinity : null,
-      padding: EdgeInsets.all(screenWidth * 0.04),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppConstants.cardColor,
-        borderRadius: BorderRadius.circular(AppConstants.radiusMedium),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppConstants.cardBackground,
+            AppConstants.cardBackground.withOpacity(0.95),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
         ],
       ),
       child: Column(
@@ -163,34 +232,31 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
           Row(
             children: [
               Container(
-                width: screenWidth * 0.09,
-                height: screenWidth * 0.09,
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  shape: BoxShape.circle,
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                child: Icon(icon, color: color, size: screenWidth * 0.045),
+                child: Icon(icon, color: color, size: 20),
               ),
-              SizedBox(width: screenWidth * 0.02),
-              Expanded(
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: AppConstants.textSecondary,
-                    fontSize: screenWidth * 0.032,
-                  ),
+              const SizedBox(width: 12),
+              Text(
+                title,
+                style: TextStyle(
+                  color: AppConstants.textSecondary,
+                  fontSize: 14,
                 ),
               ),
             ],
           ),
-          SizedBox(height: screenWidth * 0.02),
+          const SizedBox(height: 12),
           FittedBox(
             child: Text(
               CurrencyFormatter.formatCurrency(amount),
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              style: TextStyle(
                 color: color,
                 fontWeight: FontWeight.bold,
-                fontSize: screenWidth * 0.055,
+                fontSize: isFullWidth ? 24 : 20,
               ),
             ),
           ),
@@ -202,302 +268,698 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   Widget _buildIncomeExpenseChart() {
     return Consumer<TransactionProvider>(
       builder: (context, provider, child) {
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(AppConstants.paddingMedium),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Pemasukan vs Pengeluaran',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: AppConstants.paddingMedium),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.3,
-                  child: FutureBuilder(
-                    future: _getPeriodData(provider),
-                    builder:
-                        (context, AsyncSnapshot<Map<String, double>> snapshot) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppConstants.cardBackground,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _selectedPeriod == 0
+                        ? 'Transaksi Per Hari'
+                        : _selectedPeriod == 1
+                            ? 'Transaksi Per Hari (Bulan Ini)'
+                            : 'Transaksi Per Bulan',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: AppConstants.textPrimary,
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppConstants.primaryColor.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      _periods[_selectedPeriod],
+                      style: TextStyle(
+                        color: AppConstants.primaryColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              ..._buildWeeklyLegend(),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 220,
+                child: _selectedPeriod == 0
+                    ? FutureBuilder<List<Map<String, double>>>(
+                        future: _getWeeklyDailyData(provider),
+                        builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
-                              child: CircularProgressIndicator(),
-                            );
+                                child: CircularProgressIndicator());
                           }
-
-                          final income = snapshot.data?['income'] ?? 0.0;
-                          final expense = snapshot.data?['expense'] ?? 0.0;
-                          final screenWidth = MediaQuery.of(context).size.width;
-
-                          return BarChart(
-                            BarChartData(
-                              alignment: BarChartAlignment.spaceAround,
-                              maxY: (income > expense ? income : expense) * 1.2,
-                              barTouchData: BarTouchData(enabled: true),
-                              titlesData: FlTitlesData(
-                                show: true,
-                                bottomTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    getTitlesWidget: (value, meta) {
-                                      return Padding(
-                                        padding: EdgeInsets.only(
-                                          top: screenWidth * 0.02,
-                                        ),
-                                        child: Text(
-                                          value == 0
-                                              ? 'Pemasukan'
-                                              : 'Pengeluaran',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                fontSize: screenWidth * 0.03,
-                                              ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                leftTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    reservedSize: screenWidth * 0.14,
-                                    getTitlesWidget: (value, meta) {
-                                      return Padding(
-                                        padding: EdgeInsets.only(
-                                          right: screenWidth * 0.02,
-                                        ),
-                                        child: Text(
-                                          CurrencyFormatter.formatCompact(
-                                            value,
-                                          ),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodySmall
-                                              ?.copyWith(
-                                                fontSize: screenWidth * 0.028,
-                                              ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                                topTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                                rightTitles: AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                              ),
-                              gridData: FlGridData(
-                                show: true,
-                                drawVerticalLine: false,
-                              ),
-                              borderData: FlBorderData(show: false),
-                              barGroups: [
-                                BarChartGroupData(
-                                  x: 0,
-                                  barRods: [
-                                    BarChartRodData(
-                                      toY: income,
-                                      color: AppConstants.successColor,
-                                      width: screenWidth * 0.09,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(
-                                          screenWidth * 0.02,
-                                        ),
-                                        topRight: Radius.circular(
-                                          screenWidth * 0.02,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                BarChartGroupData(
-                                  x: 1,
-                                  barRods: [
-                                    BarChartRodData(
-                                      toY: expense,
-                                      color: AppConstants.errorColor,
-                                      width: screenWidth * 0.09,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(
-                                          screenWidth * 0.02,
-                                        ),
-                                        topRight: Radius.circular(
-                                          screenWidth * 0.02,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                          final data = snapshot.data ?? [];
+                          final labels = [
+                            'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'
+                          ];
+                          final now = DateTime.now();
+                          final highlightIdx = now.weekday - 1;
+                          return _buildLineChart(
+                            data: data,
+                            labels: labels,
+                            highlightIndex: highlightIdx,
                           );
                         },
-                  ),
-                ),
-              ],
-            ),
+                      )
+                    : _selectedPeriod == 1
+                        ? FutureBuilder<List<Map<String, double>>>(
+                            future: _getMonthlyDailyData(provider),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
+                              final data = snapshot.data ?? [];
+                              final now = DateTime.now();
+                              final daysInMonth = DateTimeRange(
+                                start: DateTime(now.year, now.month, 1),
+                                end: DateTime(now.year, now.month + 1, 1),
+                              ).duration.inDays;
+                              // Labels tiap 5 hari
+                              final labels = List.generate(
+                                daysInMonth,
+                                (i) => (i + 1) % 5 == 1
+                                    ? '${i + 1}'
+                                    : '',
+                              );
+                              return _buildLineChart(
+                                data: data,
+                                labels: labels,
+                                highlightIndex: now.day - 1,
+                                showDotsAll: false,
+                              );
+                            },
+                          )
+                        : FutureBuilder<List<Map<String, double>>>(
+                            future: _getYearlyMonthlyData(provider),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              }
+                              final data = snapshot.data ?? [];
+                              final labels = [
+                                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+                                'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+                              ];
+                              final now = DateTime.now();
+                              return _buildLineChart(
+                                data: data,
+                                labels: labels,
+                                highlightIndex: now.month - 1,
+                              );
+                            },
+                          ),
+              ),
+            ],
           ),
         );
       },
     );
   }
 
+  List<Widget> _buildWeeklyLegend() {
+    return [
+      Row(
+        children: [
+          // Legend pemasukan
+          Row(
+            children: [
+              Container(
+                width: 18,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: AppConstants.successColor,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 2),
+              Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: AppConstants.successColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Pemasukan',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppConstants.textSecondary,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 20),
+          // Legend pengeluaran
+          Row(
+            children: [
+              Container(
+                width: 18,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: AppConstants.errorColor,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: 2),
+              Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: AppConstants.errorColor,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Pengeluaran',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: AppConstants.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    ];
+  }
+
+
+  /// Universal LineChart builder — dipakai oleh semua 3 periode
+  Widget _buildLineChart({
+    required List<Map<String, double>> data,
+    required List<String> labels,
+    required int highlightIndex,
+    bool showDotsAll = true,
+  }) {
+    List<FlSpot> incomeSpots = [];
+    List<FlSpot> expenseSpots = [];
+    double maxVal = 1;
+
+    for (int i = 0; i < data.length; i++) {
+      final income = data[i]['income'] ?? 0.0;
+      final expense = data[i]['expense'] ?? 0.0;
+      incomeSpots.add(FlSpot(i.toDouble(), income));
+      expenseSpots.add(FlSpot(i.toDouble(), expense));
+      if (income > maxVal) maxVal = income;
+      if (expense > maxVal) maxVal = expense;
+    }
+
+    final maxX = ((data.length - 1).toDouble()).clamp(1.0, double.infinity);
+    final hInterval = maxVal / 4 < 1 ? 1.0 : maxVal / 4;
+
+    return LineChart(
+      LineChartData(
+        maxX: maxX,
+        minX: 0,
+        maxY: maxVal * 1.3,
+        minY: 0,
+        clipData: const FlClipData.all(),
+        lineTouchData: LineTouchData(
+          enabled: true,
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (spot) => AppConstants.cardBackground,
+            tooltipBorder: BorderSide(
+              color: AppConstants.dividerColor,
+              width: 1,
+            ),
+            tooltipPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+            getTooltipItems: (touchedSpots) {
+              return touchedSpots.map((spot) {
+                final isIncome = spot.barIndex == 0;
+                final label = spot.x.toInt() < labels.length
+                    ? labels[spot.x.toInt()]
+                    : '';
+                return LineTooltipItem(
+                  '${label.isNotEmpty ? '$label\n' : ''}${isIncome ? '▲ ' : '▼ '}${CurrencyFormatter.formatCompact(spot.y)}',
+                  TextStyle(
+                    color: isIncome
+                        ? AppConstants.successColor
+                        : AppConstants.errorColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 11,
+                  ),
+                );
+              }).toList();
+            },
+          ),
+          handleBuiltInTouches: true,
+        ),
+        borderData: FlBorderData(
+          show: true,
+          border: Border.all(
+            color: AppConstants.dividerColor.withOpacity(0.5),
+            width: 1,
+          ),
+        ),
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: true,
+          horizontalInterval: hInterval,
+          verticalInterval: maxX / 6,
+          getDrawingHorizontalLine: (value) => FlLine(
+            color: AppConstants.dividerColor.withOpacity(0.3),
+            strokeWidth: 1,
+          ),
+          getDrawingVerticalLine: (value) => FlLine(
+            color: AppConstants.dividerColor.withOpacity(0.3),
+            strokeWidth: 1,
+          ),
+        ),
+        titlesData: FlTitlesData(
+          topTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 48,
+              getTitlesWidget: (value, meta) {
+                if (value == 0 || value == meta.max) {
+                  return const SizedBox.shrink();
+                }
+                return Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Text(
+                    CurrencyFormatter.formatCompact(value),
+                    style: TextStyle(
+                      color: AppConstants.textSecondary,
+                      fontSize: 9,
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
+                );
+              },
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 28,
+              interval: 1,
+              getTitlesWidget: (value, meta) {
+                final idx = value.toInt();
+                if (idx < 0 || idx >= labels.length) {
+                  return const SizedBox.shrink();
+                }
+                final label = labels[idx];
+                if (label.isEmpty) return const SizedBox.shrink();
+                final isHighlight = idx == highlightIndex;
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: isHighlight
+                          ? AppConstants.primaryColor
+                          : AppConstants.textSecondary,
+                      fontSize: 10,
+                      fontWeight: isHighlight
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        lineBarsData: [
+          // Garis Pemasukan (hijau)
+          LineChartBarData(
+            spots: incomeSpots,
+            isCurved: true,
+            preventCurveOverShooting: true,
+            color: AppConstants.successColor,
+            barWidth: 2.5,
+            belowBarData: BarAreaData(
+              show: true,
+              gradient: LinearGradient(
+                colors: [
+                  AppConstants.successColor.withOpacity(0.18),
+                  AppConstants.successColor.withOpacity(0.0),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, bar, index) {
+                final isHighlight = index == highlightIndex;
+                final show = showDotsAll || isHighlight;
+                if (!show) {
+                  return FlDotCirclePainter(
+                    radius: 0,
+                    color: Colors.transparent,
+                    strokeWidth: 0,
+                    strokeColor: Colors.transparent,
+                  );
+                }
+                return FlDotCirclePainter(
+                  radius: isHighlight ? 5.5 : 3,
+                  color: AppConstants.successColor,
+                  strokeWidth: isHighlight ? 2 : 0,
+                  strokeColor: Colors.white,
+                );
+              },
+            ),
+          ),
+          // Garis Pengeluaran (merah)
+          LineChartBarData(
+            spots: expenseSpots,
+            isCurved: true,
+            preventCurveOverShooting: true,
+            color: AppConstants.errorColor,
+            barWidth: 2.5,
+            belowBarData: BarAreaData(
+              show: true,
+              gradient: LinearGradient(
+                colors: [
+                  AppConstants.errorColor.withOpacity(0.15),
+                  AppConstants.errorColor.withOpacity(0.0),
+                ],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
+            ),
+            dotData: FlDotData(
+              show: true,
+              getDotPainter: (spot, percent, bar, index) {
+                final isHighlight = index == highlightIndex;
+                final show = showDotsAll || isHighlight;
+                if (!show) {
+                  return FlDotCirclePainter(
+                    radius: 0,
+                    color: Colors.transparent,
+                    strokeWidth: 0,
+                    strokeColor: Colors.transparent,
+                  );
+                }
+                return FlDotCirclePainter(
+                  radius: isHighlight ? 5.5 : 3,
+                  color: AppConstants.errorColor,
+                  strokeWidth: isHighlight ? 2 : 0,
+                  strokeColor: Colors.white,
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<List<Map<String, double>>> _getWeeklyDailyData(
+    TransactionProvider provider,
+  ) async {
+    final now = DateTime.now();
+    final startOfWeek = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(Duration(days: now.weekday - 1));
+
+    final List<Map<String, double>> result = [];
+    for (int i = 0; i < 7; i++) {
+      final dayStart = startOfWeek.add(Duration(days: i));
+      final dayEnd = dayStart.add(const Duration(days: 1));
+      final transactions = await provider.getTransactionsByDateRange(
+        dayStart,
+        dayEnd,
+      );
+      final income = transactions
+          .where((t) => t.type == TransactionType.income)
+          .fold<double>(0, (sum, t) => sum + t.amount);
+      final expense = transactions
+          .where((t) => t.type == TransactionType.expense)
+          .fold<double>(0, (sum, t) => sum + t.amount);
+      result.add({'income': income, 'expense': expense});
+    }
+    return result;
+  }
+
+  Future<List<Map<String, double>>> _getMonthlyDailyData(
+    TransactionProvider provider,
+  ) async {
+    final now = DateTime.now();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final daysInMonth =
+        DateTime(now.year, now.month + 1, 1).difference(startOfMonth).inDays;
+
+    final List<Map<String, double>> result = [];
+    for (int i = 0; i < daysInMonth; i++) {
+      final dayStart = startOfMonth.add(Duration(days: i));
+      final dayEnd = dayStart.add(const Duration(days: 1));
+      final transactions = await provider.getTransactionsByDateRange(
+        dayStart,
+        dayEnd,
+      );
+      final income = transactions
+          .where((t) => t.type == TransactionType.income)
+          .fold<double>(0, (sum, t) => sum + t.amount);
+      final expense = transactions
+          .where((t) => t.type == TransactionType.expense)
+          .fold<double>(0, (sum, t) => sum + t.amount);
+      result.add({'income': income, 'expense': expense});
+    }
+    return result;
+  }
+
+  Future<List<Map<String, double>>> _getYearlyMonthlyData(
+    TransactionProvider provider,
+  ) async {
+    final now = DateTime.now();
+    final List<Map<String, double>> result = [];
+    for (int month = 1; month <= 12; month++) {
+      final startOfMonth = DateTime(now.year, month, 1);
+      final endOfMonth = DateTime(now.year, month + 1, 1);
+      final transactions = await provider.getTransactionsByDateRange(
+        startOfMonth,
+        endOfMonth,
+      );
+      final income = transactions
+          .where((t) => t.type == TransactionType.income)
+          .fold<double>(0, (sum, t) => sum + t.amount);
+      final expense = transactions
+          .where((t) => t.type == TransactionType.expense)
+          .fold<double>(0, (sum, t) => sum + t.amount);
+      result.add({'income': income, 'expense': expense});
+    }
+    return result;
+  }
+
   Widget _buildCategoryBreakdown() {
     return Consumer<TransactionProvider>(
       builder: (context, provider, child) {
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(AppConstants.paddingMedium),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Breakdown Pengeluaran',
-                  style: Theme.of(context).textTheme.titleLarge,
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppConstants.cardBackground,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Breakdown Pengeluaran',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppConstants.textPrimary,
                 ),
-                const SizedBox(height: AppConstants.paddingMedium),
-                FutureBuilder(
-                  future: provider.getExpensesByCategory(DateTime.now()),
-                  builder:
-                      (context, AsyncSnapshot<Map<String, double>> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
+              ),
+              const SizedBox(height: 20),
+              FutureBuilder(
+                future: provider.getExpensesByCategory(DateTime.now()),
+                builder:
+                    (context, AsyncSnapshot<Map<String, double>> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const SizedBox(
+                      height: 200,
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
 
-                        if (snapshot.hasError ||
-                            !snapshot.hasData ||
-                            snapshot.data!.isEmpty) {
-                          return const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(
-                                AppConstants.paddingLarge,
-                              ),
-                              child: Text('Tidak ada data pengeluaran'),
-                            ),
-                          );
-                        }
+                  if (snapshot.hasError ||
+                      !snapshot.hasData ||
+                      snapshot.data!.isEmpty) {
+                    return Container(
+                      height: 200,
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.pie_chart_outline,
+                            size: 48,
+                            color: AppConstants.textSecondary,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Belum ada data pengeluaran',
+                            style: TextStyle(color: AppConstants.textSecondary),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
 
-                        final expensesByCategory = snapshot.data!;
-                        final sortedCategories =
-                            expensesByCategory.entries.toList()
-                              ..sort((a, b) => b.value.compareTo(a.value));
+                  final expensesByCategory = snapshot.data!;
+                  final sortedCategories =
+                      expensesByCategory.entries.toList()
+                        ..sort((a, b) => b.value.compareTo(a.value));
 
-                        final totalExpense = sortedCategories.fold<double>(
-                          0,
-                          (sum, entry) => sum + entry.value,
-                        );
+                  final totalExpense = sortedCategories.fold<double>(
+                    0,
+                    (sum, entry) => sum + entry.value,
+                  );
 
-                        return Column(
-                          children: [
-                            SizedBox(
-                              height: 250,
-                              child: PieChart(
-                                PieChartData(
-                                  sections: sortedCategories.asMap().entries.map(
-                                    (entry) {
-                                      final index = entry.key;
-                                      final category = entry.value;
-                                      final percentage =
-                                          (category.value / totalExpense * 100);
-                                      final color =
-                                          AppConstants.chartColors[index %
-                                              AppConstants.chartColors.length];
+                  return Column(
+                    children: [
+                      SizedBox(
+                        height: 200,
+                        child: PieChart(
+                          PieChartData(
+                            sections: sortedCategories.asMap().entries.map(
+                              (entry) {
+                                final index = entry.key;
+                                final category = entry.value;
+                                final percentage =
+                                    (category.value / totalExpense * 100);
+                                final color =
+                                    AppConstants.chartColors[index %
+                                        AppConstants.chartColors.length];
 
-                                      return PieChartSectionData(
-                                        value: category.value,
-                                        title:
-                                            '${percentage.toStringAsFixed(1)}%',
-                                        color: color,
-                                        radius: 80,
-                                        titleStyle: const TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                      );
-                                    },
-                                  ).toList(),
-                                  sectionsSpace: 2,
-                                  centerSpaceRadius: 40,
+                                return PieChartSectionData(
+                                  value: category.value,
+                                  title: percentage > 5
+                                      ? '${percentage.toInt()}%'
+                                      : '',
+                                  color: color,
+                                  radius: 65,
+                                  titleStyle: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                );
+                              },
+                            ).toList(),
+                            sectionsSpace: 2,
+                            centerSpaceRadius: 35,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      ...sortedCategories.take(5).map((entry) {
+                        final percentage =
+                            (entry.value / totalExpense * 100);
+                        final colorIndex = sortedCategories.indexOf(entry) %
+                            AppConstants.chartColors.length;
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 12,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: AppConstants.chartColors[colorIndex],
+                                  borderRadius: BorderRadius.circular(4),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: AppConstants.paddingMedium),
-                            ...sortedCategories.take(5).map((entry) {
-                              final percentage =
-                                  (entry.value / totalExpense * 100);
-                              return Padding(
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  entry.key,
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: AppConstants.textPrimary,
+                                  ),
+                                ),
+                              ),
+                              Container(
                                 padding: const EdgeInsets.symmetric(
-                                  vertical: AppConstants.paddingSmall,
+                                  horizontal: 8,
+                                  vertical: 4,
                                 ),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 12,
-                                      height: 12,
-                                      decoration: BoxDecoration(
-                                        color:
-                                            AppConstants
-                                                .chartColors[sortedCategories
-                                                    .indexOf(entry) %
-                                                AppConstants
-                                                    .chartColors
-                                                    .length],
-                                        shape: BoxShape.circle,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: AppConstants.paddingSmall,
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        entry.key,
-                                        style: Theme.of(
-                                          context,
-                                        ).textTheme.bodyMedium,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${percentage.toStringAsFixed(1)}%',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                    const SizedBox(
-                                      width: AppConstants.paddingMedium,
-                                    ),
-                                    Text(
-                                      CurrencyFormatter.formatCurrency(
-                                        entry.value,
-                                      ),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                  ],
+                                decoration: BoxDecoration(
+                                  color: AppConstants.chartColors[colorIndex]
+                                      .withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                              );
-                            }),
-                          ],
+                                child: Text(
+                                  '${percentage.toInt()}%',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppConstants.chartColors[colorIndex],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Text(
+                                CurrencyFormatter.formatCompact(entry.value),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppConstants.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
                         );
-                      },
-                ),
-              ],
-            ),
+                      }),
+                    ],
+                  );
+                },
+              ),
+            ],
           ),
         );
       },
@@ -510,7 +972,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     DateTime now = DateTime.now();
 
     switch (_selectedPeriod) {
-      case 0: // Minggu Ini
+      case 0:
         final startOfWeek = DateTime(
           now.year,
           now.month,
@@ -532,13 +994,13 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
         return {'income': income, 'expense': expense};
 
-      case 1: // Bulan Ini
+      case 1:
         final income = await provider.getTotalIncomeByMonth(now);
         final expense = await provider.getTotalExpenseByMonth(now);
 
         return {'income': income, 'expense': expense};
 
-      case 2: // Tahun Ini
+      case 2:
         final startOfYear = DateTime(now.year, 1, 1);
         final endOfYear = DateTime(now.year, 12, 31);
 
