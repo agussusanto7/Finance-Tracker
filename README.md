@@ -2,6 +2,45 @@
 
 Aplikasi manajemen keuangan pribadi yang dikembangkan dengan Flutter, featuring UI modern bergaya BNI Mobile Banking.
 
+---
+
+## 📸 Screenshots
+
+### Dashboard & Home
+
+| | |
+|---|---|
+| ![Dashboard Overview](assets/dashboard/Screenshot%202026-05-28%20221245.png) | ![Balance Card](assets/dashboard/Screenshot%202026-05-29%20130925.png) |
+| **Gambar 1.** Tampilan utama dashboard dengan ringkasan saldo dan grafik donut | **Gambar 2.** Card saldo dengan fitur hide/show |
+
+| | |
+|---|---|
+| ![Quick Actions](assets/dashboard/Screenshot%202026-05-29%20130940.png) | ![Recent Transactions](assets/dashboard/Screenshot%202026-05-29%20130952.png) |
+| **Gambar 3.** Quick actions untuk tambah transaksi cepat | **Gambar 4.** List transaksi terbaru |
+
+### Transaksi
+
+| | |
+|---|---|
+| ![Add Transaction](assets/dashboard/Screenshot%202026-05-29%20131003.png) | ![Transaction List](assets/dashboard/Screenshot%202026-05-29%20131009.png) |
+| **Gambar 5.** Form tambah transaksi pemasukan/pengeluaran | **Gambar 6.** Daftar transaksi dengan filter |
+
+### Statistik & Laporan
+
+| | |
+|---|---|
+| ![Statistics](assets/dashboard/Screenshot%202026-05-29%20131049.png) | ![Chart Breakdown](assets/dashboard/Screenshot%202026-05-29%20131102.png) |
+| **Gambar 7.** Statistik dengan periode harian/mingguan/bulanan/tahunan | **Gambar 8.** Breakdown pengeluaran per kategori |
+
+### Budget & Settings
+
+| | |
+|---|---|
+| ![Budget Planning](assets/dashboard/Screenshot%202026-05-29%20131236.png) | |
+| **Gambar 9.** Budget planning dengan progress bar | |
+
+---
+
 ## 🎯 Fitur Utama
 
 ### ✅ Dashboard (Home)
