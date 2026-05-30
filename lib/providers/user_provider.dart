@@ -4,6 +4,7 @@ import '../models/user_model.dart';
 import '../database/database_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_constants.dart';
+import '../services/firebase_service.dart';
 
 class UserProvider with ChangeNotifier {
   UserModel? _user;
@@ -101,7 +102,20 @@ class UserProvider with ChangeNotifier {
 
   Future<void> updatePhoto(String photoPath) async {
     if (_user != null) {
-      final updatedUser = _user!.copyWith(photoPath: photoPath);
+      String finalPath = photoPath;
+      // Upload ke Firebase Storage jika itu adalah file lokal
+      if (!photoPath.startsWith('http')) {
+        try {
+          final url = await FirebaseService.instance.uploadProfileImage(photoPath);
+          if (url != null) {
+            finalPath = url;
+          }
+        } catch (e) {
+          debugPrint('Gagal upload foto ke Firebase: $e');
+        }
+      }
+      
+      final updatedUser = _user!.copyWith(photoPath: finalPath);
       await updateUser(updatedUser);
     }
   }

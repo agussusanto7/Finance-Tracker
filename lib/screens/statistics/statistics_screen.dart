@@ -482,12 +482,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                             'Min',
                           ];
                           final now = _currentDate;
-                          final highlightIdx = (now.year == DateTime.now().year && now.month == DateTime.now().month && now.day == DateTime.now().day) ? now.weekday - 1 : -1;
                           return _buildLineChart(
                             context: context,
                             data: data,
                             labels: labels,
-                            highlightIndex: highlightIdx,
+                            highlightIndex: DateTime.now().weekday - 1,
+                            showDotsAll: true,
+                            tooltipPrefix: 'Hari ',
                           );
                         },
                       )
@@ -518,6 +519,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                             labels: labels,
                             highlightIndex: (now.year == DateTime.now().year && now.month == DateTime.now().month && now.day == DateTime.now().day) ? now.day - 1 : -1,
                             showDotsAll: false,
+                            tooltipPrefix: 'Tgl ',
                           );
                         },
                       )
@@ -551,6 +553,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                             data: data,
                             labels: labels,
                             highlightIndex: (now.year == DateTime.now().year) ? now.month - 1 : -1,
+                            showDotsAll: true,
+                            tooltipPrefix: 'Bln ',
                           );
                         },
                       ),
@@ -636,6 +640,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     required List<String> labels,
     required int highlightIndex,
     bool showDotsAll = true,
+    String tooltipPrefix = 'Tgl ',
   }) {
     final cs = Theme.of(context).colorScheme;
     final cardBg = cs.surface;
@@ -685,9 +690,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                     ? labels[spot.x.toInt()]
                     : '';
                 
-                // Hanya tampilkan tanggal di item pertama agar tidak ganda
+                // Hanya tampilkan tanggal/bulan di item pertama agar tidak ganda
                 final isFirst = touchedSpots.indexOf(spot) == 0;
-                final dateStr = (isFirst && label.isNotEmpty) ? 'Tgl $label\n' : '';
+                final dateStr = (isFirst && label.isNotEmpty) ? '$tooltipPrefix$label\n' : '';
                 
                 return LineTooltipItem(
                   '$dateStr${isIncome ? 'Pemasukan: ' : 'Pengeluaran: '}${CurrencyFormatter.formatCompact(spot.y)}',

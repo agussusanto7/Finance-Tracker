@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../../constants/app_constants.dart';
 import 'package:provider/provider.dart';
 import '../../providers/transaction_provider.dart';
@@ -18,9 +19,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  // Masukkan API Key Gemini Anda di sini
-  // Dapatkan di: https://aistudio.google.com/
-  static const String _apiKey = '';
+  // API Key Gemini yang diambil dari .env
+  final String _apiKey = dotenv.env['GEMINI_API_KEY'] ?? '';
 
   late final GenerativeModel _model;
   late final ChatSession _chatSession;
@@ -46,7 +46,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _initGemini() {
     // Inisialisasi model Gemini 2.5 Flash
     _model = GenerativeModel(
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-flash-lite',
       apiKey: _apiKey,
       systemInstruction: Content.system(
         'Kamu adalah asisten keuangan pribadi yang profesional, ramah, dan solutif. Tugasmu adalah membantu pengguna memberikan saran pengelolaan keuangan, tips berhemat, dan menjawab pertanyaan terkait keuangan pribadi dengan bahasa Indonesia yang mudah dipahami.',

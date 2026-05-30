@@ -241,8 +241,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   Widget _buildGalleryItem(TransactionModel transaction) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final imageFile = File(transaction.imagePath!);
-    final imageExists = imageFile.existsSync();
+    final imagePath = transaction.imagePath!;
+    final isNetwork = imagePath.startsWith('http');
+    final imageExists = isNetwork ? true : File(imagePath).existsSync();
 
     if (!imageExists) {
       return const SizedBox.shrink(); // Skip gambar yang tidak ada
@@ -269,16 +270,27 @@ class _GalleryScreenState extends State<GalleryScreen> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.file(
-                    imageFile,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: AppConstants.dividerColor,
-                        child: const Icon(Icons.broken_image),
-                      );
-                    },
-                  ),
+                  isNetwork
+                      ? Image.network(
+                          imagePath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: AppConstants.dividerColor,
+                              child: const Icon(Icons.broken_image),
+                            );
+                          },
+                        )
+                      : Image.file(
+                          File(imagePath),
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: AppConstants.dividerColor,
+                              child: const Icon(Icons.broken_image),
+                            );
+                          },
+                        ),
                   Positioned(
                     top: 8,
                     right: 8,

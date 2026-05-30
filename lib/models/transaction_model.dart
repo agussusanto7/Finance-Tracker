@@ -1,5 +1,7 @@
+import 'package:intl/intl.dart';
+
 class TransactionModel {
-  final int? id;
+  final String? id;
   final double amount;
   final TransactionType type;
   final String category;
@@ -19,29 +21,29 @@ class TransactionModel {
     DateTime? createdAt,
   }) : createdAt = createdAt ?? DateTime.now();
 
-  // Convert to Map for SQLite
+  // Convert to Map for Firestore
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'amount': amount,
-      'type': type.name,
+      'type': type == TransactionType.income ? 'pemasukan' : 'pengeluaran',
       'category': category,
-      'date': date.toIso8601String(),
+      // Merapikan tanggal agar enak dilihat di database (tanpa huruf T dan milidetik)
+      'date': DateFormat('yyyy-MM-dd HH:mm:ss').format(date),
       'note': note,
       'image_path': imagePath,
-      'created_at': createdAt.toIso8601String(),
+      'created_at': DateFormat('yyyy-MM-dd HH:mm:ss').format(createdAt),
     };
   }
 
-  // Create from Map (SQLite)
-  factory TransactionModel.fromMap(Map<String, dynamic> map) {
+  // Create from Map (Firestore)
+  factory TransactionModel.fromMap(Map<String, dynamic> map, [String? docId]) {
     return TransactionModel(
-      id: map['id'] as int?,
-      amount: map['amount'] as double,
-      type: TransactionType.values.firstWhere(
-        (e) => e.name == map['type'],
-        orElse: () => TransactionType.expense,
-      ),
+      id: docId ?? map['id'] as String?,
+      amount: (map['amount'] as num).toDouble(),
+      type: map['type'] == 'pemasukan' 
+          ? TransactionType.income 
+          : TransactionType.expense,
       category: map['category'] as String,
       date: DateTime.parse(map['date'] as String),
       note: map['note'] as String?,
@@ -52,7 +54,7 @@ class TransactionModel {
 
   // Copy with method
   TransactionModel copyWith({
-    int? id,
+    String? id,
     double? amount,
     TransactionType? type,
     String? category,

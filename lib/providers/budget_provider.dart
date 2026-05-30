@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/budget_model.dart';
 import '../database/database_helper.dart';
+import '../services/firebase_service.dart';
 
 class BudgetProvider with ChangeNotifier {
   List<BudgetModel> _budgets = [];
@@ -66,7 +67,8 @@ class BudgetProvider with ChangeNotifier {
 
   Future<double> getExpenseByCategory(String category, DateTime month) async {
     try {
-      return await DatabaseHelper.instance.getExpenseByCategory(category, month);
+      // Menghitung pengeluaran berdasarkan transaksi di Firebase!
+      return await FirebaseService.instance.getExpenseByCategory(category, month);
     } catch (e) {
       debugPrint('Error loading expense by category: $e');
       return 0.0;

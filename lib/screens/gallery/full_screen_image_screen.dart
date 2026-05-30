@@ -17,7 +17,7 @@ class FullScreenImageScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final imageFile = File(imagePath);
+    final isNetwork = imagePath.startsWith('http');
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -34,23 +34,41 @@ class FullScreenImageScreen extends StatelessWidget {
               child: InteractiveViewer(
                 minScale: 0.5,
                 maxScale: 4.0,
-                child: Image.file(
-                  imageFile,
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.broken_image, size: 64, color: Colors.white),
-                        SizedBox(height: 16),
-                        Text(
-                          'Gambar tidak dapat dimuat',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                child: isNetwork
+                    ? Image.network(
+                        imagePath,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.broken_image, size: 64, color: Colors.white),
+                              SizedBox(height: 16),
+                              Text(
+                                'Gambar tidak dapat dimuat',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          );
+                        },
+                      )
+                    : Image.file(
+                        File(imagePath),
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.broken_image, size: 64, color: Colors.white),
+                              SizedBox(height: 16),
+                              Text(
+                                'Gambar tidak dapat dimuat',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
               ),
             ),
           ),
