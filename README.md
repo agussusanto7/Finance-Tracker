@@ -4,40 +4,26 @@ Aplikasi manajemen keuangan pribadi yang dikembangkan dengan Flutter, featuring 
 
 ---
 
-## 📸 Screenshots
+## 📸 Gallery Screenshots
 
-### Dashboard & Home
-
-| | |
-|---|---|
-| ![Dashboard Overview](assets/dashboard/Screenshot%202026-05-28%20221245.png) | ![Balance Card](assets/dashboard/Screenshot%202026-05-29%20130925.png) |
-| **Gambar 1.** Tampilan utama dashboard dengan ringkasan saldo dan grafik donut | **Gambar 2.** Card saldo dengan fitur hide/show |
-
-| | |
-|---|---|
-| ![Quick Actions](assets/dashboard/Screenshot%202026-05-29%20130940.png) | ![Recent Transactions](assets/dashboard/Screenshot%202026-05-29%20130952.png) |
-| **Gambar 3.** Quick actions untuk tambah transaksi cepat | **Gambar 4.** List transaksi terbaru |
-
-### Transaksi
-
-| | |
-|---|---|
-| ![Add Transaction](assets/dashboard/Screenshot%202026-05-29%20131003.png) | ![Transaction List](assets/dashboard/Screenshot%202026-05-29%20131009.png) |
-| **Gambar 5.** Form tambah transaksi pemasukan/pengeluaran | **Gambar 6.** Daftar transaksi dengan filter |
-
-### Statistik & Laporan
-
-| | |
-|---|---|
-| ![Statistics](assets/dashboard/Screenshot%202026-05-29%20131049.png) | ![Chart Breakdown](assets/dashboard/Screenshot%202026-05-29%20131102.png) |
-| **Gambar 7.** Statistik dengan periode harian/mingguan/bulanan/tahunan | **Gambar 8.** Breakdown pengeluaran per kategori |
-
-### Budget & Settings
-
-| | |
-|---|---|
-| ![Budget Planning](assets/dashboard/Screenshot%202026-05-29%20131236.png) | |
-| **Gambar 9.** Budget planning dengan progress bar | |
+<div align="center">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.06.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.07.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.07%20(1).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.07%20(2).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+</div>
+<div align="center">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.08.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.08%20(1).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.08%20(2).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.09.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+</div>
+<div align="center">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.09%20(1).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.09%20(2).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.10.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.10%20(1).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+</div>
 
 ---
 
