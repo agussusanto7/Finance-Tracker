@@ -20,7 +20,7 @@ Aplikasi manajemen keuangan pribadi yang dikembangkan dengan Flutter, featuring 
 </div>
 <div align="center">
   <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.09%20(1).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.09%20(2).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.21.43.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
   <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.10.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
   <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.10%20(1).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
 </div>
