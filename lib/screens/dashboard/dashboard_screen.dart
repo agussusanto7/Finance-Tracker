@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -58,44 +59,92 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildAppBar(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 360;
+    
     return Consumer<UserProvider>(
       builder: (context, userProvider, child) {
-        final userName = userProvider.user?.name ?? 'Pengguna';
+        final user = userProvider.user;
+        final userName = user?.name ?? 'Pengguna';
         // Ambil nama depan saja agar tidak terlalu panjang
         final firstName = userName.split(' ').first;
         
+        // Logika untuk foto profil
+        final hasPhoto = user?.photoPath != null && user!.photoPath!.isNotEmpty;
+        final isNetworkPhoto = hasPhoto && user!.photoPath!.startsWith('http');
+        final photoFile = hasPhoto && !isNetworkPhoto ? File(user!.photoPath!) : null;
+        final photoExists = isNetworkPhoto || (photoFile?.existsSync() ?? false);
+
+        ImageProvider? getProfileImage() {
+          if (isNetworkPhoto) return NetworkImage(user!.photoPath!);
+          if (photoExists && photoFile != null) return FileImage(photoFile);
+          return null;
+        }
+        
         return SliverAppBar(
-          expandedHeight: 180,
-          floating: false,
+          toolbarHeight: 70, // Tinggi yang lebih padat dan pas
+          floating: true,
           pinned: true,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           elevation: 0,
-          flexibleSpace: FlexibleSpaceBar(
-            titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
-            title: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Hai, $firstName! 👋',
-                  style: TextStyle(
-                    color: cs.onSurface.withOpacity(0.55),
-                    fontSize: 13,
-                    fontWeight: FontWeight.normal,
-                  ),
+          centerTitle: false, // Menjamin teks sejajar ke kiri
+          titleSpacing: 20,
+          title: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Hai, $firstName! 👋',
+                style: TextStyle(
+                  color: cs.onSurface.withOpacity(0.6),
+                  fontSize: isSmallScreen ? 12 : 14,
+                  fontWeight: FontWeight.w500,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  'FinanceTracker',
-                  style: TextStyle(
-                    color: cs.onSurface,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'FinanceTracker',
+                style: TextStyle(
+                  color: cs.onSurface,
+                  fontSize: isSmallScreen ? 20 : 22,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: -0.5,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+          actions: [
+            // Avatar profil yang bisa di-klik untuk pindah ke Pengaturan (Index 3)
+            Padding(
+              padding: const EdgeInsets.only(right: 20.0),
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MainScreen(initialIndex: 3),
+                    ),
+                    (route) => false,
+                  );
+                },
+                child: CircleAvatar(
+                  radius: 20,
+                  backgroundColor: AppConstants.primaryColor.withOpacity(0.15),
+                  backgroundImage: getProfileImage(),
+                  child: !photoExists
+                      ? Text(
+                          firstName.isNotEmpty ? firstName[0].toUpperCase() : 'P',
+                          style: TextStyle(
+                            color: AppConstants.primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        )
+                      : null,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -154,9 +203,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                 ? 'Rp ••••••••'
                                 : CurrencyFormatter.formatCurrency(
                                     transactionProvider.totalBalance),
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.white,
-                              fontSize: 26,
+                              fontSize: MediaQuery.of(context).size.width < 360 ? 24 : 32,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -269,9 +318,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       alignment: Alignment.centerLeft,
                       child: Text(
                         balanceHidden ? '• • •' : CurrencyFormatter.formatCompact(amount),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 14,
+                          fontSize: MediaQuery.of(context).size.width < 360 ? 14 : 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -310,7 +359,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Text(
             'Aksi Cepat',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: MediaQuery.of(context).size.width < 360 ? 16 : 18,
               fontWeight: FontWeight.bold,
               color: textPrimary,
             ),
@@ -392,13 +441,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           children: [
             Container(
-              width: 56,
-              height: 56,
+              width: MediaQuery.of(context).size.width < 360 ? 56 : 64,
+              height: MediaQuery.of(context).size.width < 360 ? 56 : 64,
               decoration: BoxDecoration(
                 color: color.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(icon, color: color, size: 28),
+              child: Icon(icon, color: color, size: MediaQuery.of(context).size.width < 360 ? 28 : 32),
             ),
             const SizedBox(height: 10),
             SizedBox(
@@ -408,7 +457,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Text(
                   label,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: MediaQuery.of(context).size.width < 360 ? 12 : 14,
                     fontWeight: FontWeight.w500,
                     color: textPrimary,
                   ),
@@ -452,7 +501,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   Text(
                     'Ringkasan Bulan Ini',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: MediaQuery.of(context).size.width < 360 ? 16 : 18,
                       fontWeight: FontWeight.bold,
                       color: textPrimary,
                     ),
@@ -479,7 +528,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 20),
               SizedBox(
-                height: 140,
+                height: MediaQuery.of(context).size.width < 360 ? 140 : 160,
                 child: FutureBuilder<List<double>>(
                   future: Future.wait([
                     provider.getTotalIncomeByMonth(DateTime.now()),
@@ -641,7 +690,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Text(
               value,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: MediaQuery.of(context).size.width < 360 ? 12 : 14,
                 fontWeight: FontWeight.bold,
                 color: textPrimary,
               ),
@@ -687,7 +736,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Text(
                         'Transaksi Terbaru',
                         style: TextStyle(
-                          fontSize: 16,
+                          fontSize: MediaQuery.of(context).size.width < 360 ? 16 : 18,
                           fontWeight: FontWeight.bold,
                           color: textPrimary,
                         ),
