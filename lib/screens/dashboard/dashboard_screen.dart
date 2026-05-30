@@ -571,7 +571,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             showTitle: false,
                                           ),
                                       ],
-                                sectionsSpace: total == 0 ? 0 : 2,
+                                sectionsSpace: 0,
                                 centerSpaceRadius: 20,
                               ),
                             ),
@@ -589,7 +589,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   label: 'Pemasukan',
                                   value: CurrencyFormatter.formatCompact(income),
                                   percentage: total > 0
-                                      ? '${((income / total) * 100).toInt()}%'
+                                      ? '${((income / total) * 100).round()}%'
                                       : '0%',
                                 ),
                                 const SizedBox(height: 12),
@@ -599,7 +599,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   label: 'Pengeluaran',
                                   value: CurrencyFormatter.formatCompact(expense),
                                   percentage: total > 0
-                                      ? '${((expense / total) * 100).toInt()}%'
+                                      ? '${((expense / total) * 100).round()}%'
                                       : '0%',
                                 ),
                                 const SizedBox(height: 12),

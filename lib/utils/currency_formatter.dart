@@ -11,14 +11,28 @@ class CurrencyFormatter {
   }
 
   static String formatCompact(double amount) {
-    if (amount >= 1000000000) {
-      return '${(amount / 1000000000).toStringAsFixed(1)} M';
-    } else if (amount >= 1000000) {
-      return '${(amount / 1000000).toStringAsFixed(1)} Jt';
-    } else if (amount >= 1000) {
-      return '${(amount / 1000).toStringAsFixed(1)} Rb';
+    final isNegative = amount < 0;
+    final abs = amount.abs();
+    String result;
+
+    if (abs >= 1000000000) {
+      final val = abs / 1000000000;
+      // Truncate ke 1 desimal (tanpa pembulatan ke atas)
+      final truncated = (val * 10).floor() / 10;
+      result = '${truncated.toStringAsFixed(1)} M';
+    } else if (abs >= 1000000) {
+      final val = abs / 1000000;
+      final truncated = (val * 10).floor() / 10;
+      result = '${truncated.toStringAsFixed(1)} Jt';
+    } else if (abs >= 1000) {
+      final val = abs / 1000;
+      final truncated = (val * 10).floor() / 10;
+      result = '${truncated.toStringAsFixed(1)} Rb';
+    } else {
+      result = abs.toStringAsFixed(0);
     }
-    return amount.toStringAsFixed(0);
+
+    return isNegative ? '-$result' : result;
   }
 
   static double? parseCurrency(String value) {

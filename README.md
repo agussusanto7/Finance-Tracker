@@ -1,6 +1,18 @@
-# Finance Tracker - Aplikasi Management Keuangan Pribadi
+<![CDATA[# 💰 FinanceTracker — Smart Personal Finance Manager
 
-Aplikasi manajemen keuangan pribadi yang dikembangkan dengan Flutter, featuring UI modern bergaya BNI Mobile Banking.
+<div align="center">
+
+![Flutter](https://img.shields.io/badge/Flutter-3.9.2-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-3.9-0175C2?style=for-the-badge&logo=dart&logoColor=white)
+![Firebase](https://img.shields.io/badge/Firebase-Auth%20%7C%20Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![Supabase](https://img.shields.io/badge/Supabase-Storage-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![Gemini AI](https://img.shields.io/badge/Gemini%20AI-2.5%20Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)
+
+**Aplikasi manajemen keuangan pribadi berbasis Flutter dengan fitur AI Consultation, Cloud Sync, dan UI premium yang modern.**
+
+[Fitur](#-fitur-lengkap) • [Teknologi](#%EF%B8%8F-tech-stack) • [Instalasi](#-instalasi) • [Arsitektur](#-arsitektur-project) • [Panduan](#-panduan-penggunaan)
+
+</div>
 
 ---
 
@@ -27,100 +39,233 @@ Aplikasi manajemen keuangan pribadi yang dikembangkan dengan Flutter, featuring 
 
 ---
 
-## 🎯 Fitur Utama
+## ✨ Fitur Lengkap
 
-### ✅ Dashboard (Home)
-- **Summary Saldo Total**: Tampilan saldo dengan opsi hide/show
-- **Grafik Pie Chart**: Visualisasi pengeluaran per kategori bulan ini
-- **Grafik Bar Chart**: Perbandingan pemasukan vs pengeluaran
-- **Quick Action Buttons**: Tambah pemasukan/pengeluaran dengan cepat
-- **List Transaksi Terbaru**: 5 transaksi terakhir
+### 🔐 Autentikasi & Keamanan
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Firebase Authentication** | Login/Register dengan Email & Password |
+| **Google Sign-In** | Satu klik masuk menggunakan akun Google |
+| **6-Digit PIN** | Keamanan lokal dengan PIN 6 digit |
+| **Biometric Auth** | Dukungan sidik jari / Face ID |
+| **Reset Password** | Lupa kata sandi via email Firebase |
+| **Session Management** | Auto-logout & sesi aman |
 
-### ✅ Transaksi
-- **Form Input Transaksi**: Tambah pemasukan/pengeluaran dengan mudah
-- **Kategori**: Pilihan kategori lengkap (Makanan, Transport, Belanja, dll)
-- **Format Rupiah**: Input nominal dengan format mata uang otomatis
-- **DatePicker**: Pilih tanggal transaksi
-- **Catatan**: Tambahkan catatan opsional
-- **List & Filter**: Lihat semua transaksi dengan filter berdasarkan tipe
-- **Swipe to Delete**: Hapus transaksi dengan mudah
+### 📊 Dashboard Responsif
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Saldo Total** | Tampilan saldo real-time dengan opsi hide/show |
+| **Pie Chart Ringkasan** | Visualisasi perbandingan pemasukan vs pengeluaran bulan ini |
+| **Quick Action Buttons** | Akses cepat ke Pemasukan, Pengeluaran, dan Budget |
+| **Transaksi Terbaru** | 5 transaksi terakhir langsung di dashboard |
+| **Avatar Profil** | Foto profil di header, klik langsung ke Pengaturan |
+| **Responsive Layout** | Otomatis menyesuaikan untuk HP kecil (Oppo A5s), HP besar, tablet, dan desktop |
+| **Konsultasi Banner** | Akses cepat ke AI Consultant dari dashboard |
 
-### ✅ Statistik & Laporan
-- **Periode Pilihan**: Harian, Mingguan, Bulanan, Tahunan
-- **Bar Chart**: Visualisasi pemasukan vs pengeluaran
-- **Pie Chart**: Breakdown pengeluaran per kategori
-- **Top Kategori**: Daftar kategori pengeluaran terbesar
+### 💳 Manajemen Transaksi
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Tambah Pemasukan/Pengeluaran** | Form input lengkap dengan format Rupiah otomatis |
+| **Kategori Kustom** | Kelola kategori pemasukan & pengeluaran sendiri |
+| **DatePicker** | Pilih tanggal transaksi (default: hari ini) |
+| **Catatan & Bukti Foto** | Lampirkan catatan dan foto bukti transaksi |
+| **Upload ke Cloud** | Foto bukti otomatis diupload ke Supabase Storage |
+| **Swipe to Delete** | Hapus transaksi dengan geser ke kiri |
+| **Filter & Pencarian** | Filter berdasarkan tipe (Semua/Pemasukan/Pengeluaran) |
 
-### ✅ Budget Planning
-- **Set Budget Bulanan**: Tentukan batas pengeluaran per kategori
-- **Progress Bar**: Visualisasi sisa budget
-- **Warning System**: Notifikasi visual saat budget mencapai 80% dan 100%
-- **Budget Management**: Tambah dan hapus budget
+### 📈 Statistik & Laporan
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Multi-Periode** | Analisis Harian, Mingguan, Bulanan, dan Tahunan |
+| **Bar Chart** | Perbandingan visual pemasukan vs pengeluaran |
+| **Pie Chart** | Breakdown pengeluaran per kategori |
+| **Top Kategori** | Ranking kategori pengeluaran terbesar |
 
-### ✅ Pengaturan
-- **Profil User**: Kelola nama dan foto profil
-- **Hide/Show Balance**: Sembunyikan atau tampilkan saldo
-- **PIN Security**: Keamanan dengan 6-digit PIN
-- **Biometric Support**: Opsional autentikasi sidik jari
+### 💼 Budget Planning
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Budget per Kategori** | Tentukan batas pengeluaran per kategori per bulan |
+| **Progress Bar Visual** | Indikator visual sisa budget |
+| **Warning System** | Peringatan otomatis saat budget 80% dan 100% |
+| **Cloud Backup** | Budget otomatis di-backup ke Firebase Firestore |
 
-### ✅ UI/UX
-- **BNI Mobile Banking Style**: Gradasi orange ke merah
-- **Material Design 3**: Modern rounded corners
-- **Dark Mode Support**: Theme gelap dan terang
-- **Smooth Animations**: Transisi 60fps
-- **Card-based Layout**: Desain modular dan bersih
+### 🤖 AI Financial Consultant (Gemini AI)
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Powered by Gemini 2.5 Flash** | Konsultasi keuangan dengan AI Google terbaru |
+| **Konteks Data Real-time** | AI membaca data keuangan Anda untuk saran personal |
+| **Chat Interface** | UI chat modern dengan bubble dan markdown support |
+| **Saran Cerdas** | Tips berhemat, analisis pengeluaran, dan perencanaan keuangan |
 
-## 🛠️ Teknologi yang Digunakan
+### 🧮 Kalkulator Keuangan
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Desain ala iPhone** | UI kalkulator premium dengan tombol bulat |
+| **Operasi Lengkap** | Tambah, kurang, kali, bagi, persen, dan negasi |
+| **Format Angka Indonesia** | Titik sebagai pemisah ribuan, koma sebagai desimal |
+| **Riwayat Perhitungan** | Histori kalkulasi yang persistent |
+| **Auto-Resize Font** | Ukuran angka otomatis menyesuaikan panjang ekspresi |
+
+### 🖼️ Galeri Bukti Transaksi
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Grid Gallery** | Tampilan grid 2 kolom untuk semua bukti transaksi |
+| **Multi-Filter** | Filter: Hari Ini, Minggu Ini, Bulan Ini, Tahun Ini, Semua |
+| **Filter Tahun** | Dropdown untuk filter berdasarkan tahun spesifik |
+| **Full-Screen Viewer** | Lihat gambar full-screen dengan detail transaksi |
+| **Cloud & Local** | Mendukung gambar dari lokal dan URL cloud |
+
+### ☁️ Cloud Sync (Firebase + Supabase)
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Firebase Firestore** | Sinkronisasi transaksi & budget ke cloud |
+| **Supabase Storage** | Penyimpanan foto bukti transaksi & profil |
+| **Document ID Deskriptif** | Prefix `pemasukan_` / `pengeluaran_` untuk organisasi data |
+| **Cross-Device** | Akses data dari perangkat manapun |
+
+### ⚙️ Pengaturan & Personalisasi
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Profil Pengguna** | Nama, foto profil (kamera/galeri/Google) |
+| **Dark/Light Mode** | Toggle tema gelap dan terang |
+| **Hide Balance** | Sembunyikan saldo di dashboard |
+| **Kelola Kategori** | Tambah, edit, hapus kategori kustom |
+| **Kelola Budget** | Manajemen budget per kategori |
+| **Ubah PIN** | Ganti PIN keamanan dengan verifikasi PIN lama |
+| **Logout** | Logout dari Firebase & Google Sign-In |
+
+### 🎨 UI/UX Premium
+| Fitur | Deskripsi |
+|-------|-----------|
+| **Gradient Design** | Purple-violet gradient yang elegan |
+| **Material Design 3** | Rounded corners dan elevasi modern |
+| **Responsive Design** | Adaptif untuk mobile, tablet, dan desktop |
+| **Smooth Animations** | Transisi dan micro-animation 60fps |
+| **Google Fonts (Poppins)** | Tipografi premium |
+| **Adaptive Layout** | Bottom Nav (mobile), Navigation Rail (tablet), Sidebar (desktop) |
+
+---
+
+## 🛠️ Tech Stack
+
+### Core Framework
+| Teknologi | Versi | Fungsi |
+|-----------|-------|--------|
+| Flutter | ^3.9.2 | Framework UI cross-platform |
+| Dart | ^3.9 | Bahasa pemrograman |
 
 ### State Management
-- **Provider** (^6.1.2)
+| Package | Versi | Fungsi |
+|---------|-------|--------|
+| provider | ^6.1.2 | State management reactive |
 
-### Database
-- **SQLite** (sqflite ^2.3.3+2)
-- **Shared Preferences** untuk settings
+### Backend & Cloud
+| Service | Package | Fungsi |
+|---------|---------|--------|
+| Firebase Auth | firebase_auth ^6.5.1 | Autentikasi pengguna |
+| Cloud Firestore | cloud_firestore ^6.4.1 | Database cloud NoSQL |
+| Firebase Storage | firebase_storage ^13.4.1 | Penyimpanan file cloud |
+| Supabase | supabase_flutter ^2.12.4 | Storage untuk foto |
+| Google Sign-In | google_sign_in 6.2.1 | OAuth login Google |
+
+### AI & Intelligence
+| Package | Versi | Fungsi |
+|---------|-------|--------|
+| google_generative_ai | ^0.4.7 | Gemini AI API |
+| flutter_markdown | ^0.7.7+1 | Render markdown dari respons AI |
+
+### Database & Storage
+| Package | Versi | Fungsi |
+|---------|-------|--------|
+| sqflite | ^2.3.3+2 | Database SQLite lokal |
+| shared_preferences | ^2.3.3 | Key-value storage untuk settings |
+| path_provider | ^2.1.4 | Akses path sistem |
 
 ### UI Components
-- **fl_chart** (^0.68.0) - Grafik dan charts
-- **flutter_slidable** (^3.1.1) - Swipe actions
-- **shimmer** (^3.0.0) - Loading skeleton
-- **google_fonts** (^6.2.1) - Typography Poppins
+| Package | Versi | Fungsi |
+|---------|-------|--------|
+| fl_chart | ^0.68.0 | Pie chart & bar chart interaktif |
+| flutter_slidable | ^3.1.1 | Swipe-to-delete pada list |
+| shimmer | ^3.0.0 | Loading skeleton premium |
+| google_fonts | ^6.2.1 | Tipografi Poppins |
+| flutter_svg | ^2.0.10+1 | Render ikon SVG |
+| animations | ^2.0.11 | Animasi transisi halaman |
 
 ### Utilities
-- **intl** (^0.19.0) - Format currency dan date
-- **image_picker** (^1.1.2) - Upload foto bukti
-- **local_auth** (^2.3.0) - Biometric authentication
+| Package | Versi | Fungsi |
+|---------|-------|--------|
+| intl | ^0.19.0 | Format currency Rupiah & tanggal |
+| image_picker | ^1.1.2 | Ambil foto dari kamera/galeri |
+| local_auth | ^2.3.0 | Biometric authentication |
+| math_expressions | ^3.1.0 | Parser kalkulasi matematika |
+| flutter_dotenv | ^6.0.1 | Environment variable (.env) |
+
+---
 
 ## 📦 Instalasi
 
 ### Prasyarat
-- Flutter SDK (^3.9.2)
-- Android Studio / VS Code
-- Android SDK 21+ atau iOS 12+
+- **Flutter SDK** ^3.9.2
+- **Android Studio** / **VS Code** dengan Flutter extension
+- **Android SDK 21+** atau **iOS 12+**
+- **Firebase Project** (untuk autentikasi & cloud sync)
+- **Supabase Project** (untuk storage foto)
+- **Gemini API Key** (untuk fitur AI Consultation)
 
 ### Langkah Instalasi
 
-1. **Clone repository**
+1. **Clone Repository**
    ```bash
-   git clone <repository-url>
-   cd flutter_application_1
+   git clone https://github.com/agussusanto7/Finance-Tracker.git
+   cd Finance-Tracker
    ```
 
-2. **Install dependencies**
+2. **Setup Environment Variables**
+   ```bash
+   # Buat file .env di root project
+   cp .env.example .env
+   ```
+   Isi file `.env` dengan konfigurasi:
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   SUPABASE_URL=your_supabase_url_here
+   SUPABASE_ANON_KEY=your_supabase_anon_key_here
+   ```
+
+3. **Setup Firebase**
+   - Buat project di [Firebase Console](https://console.firebase.google.com/)
+   - Aktifkan **Authentication** (Email/Password & Google)
+   - Aktifkan **Cloud Firestore**
+   - Download `google-services.json` → taruh di `android/app/`
+   - Untuk iOS: download `GoogleService-Info.plist` → taruh di `ios/Runner/`
+
+4. **Setup Supabase Storage**
+   - Buat project di [Supabase Dashboard](https://supabase.com/)
+   - Buat bucket `receipts` dan `profiles` (public)
+   - Salin URL dan Anon Key ke file `.env`
+
+5. **Install Dependencies**
    ```bash
    flutter pub get
    ```
 
-3. **Run aplikasi**
+6. **Generate Native Splash & Launcher Icons**
    ```bash
-   # Untuk Android/iOS
+   dart run flutter_native_splash:create
+   dart run flutter_launcher_icons
+   ```
+
+7. **Run Aplikasi**
+   ```bash
+   # Development
    flutter run
 
-   # Atau pilih device
+   # Pilih device tertentu
    flutter devices
    flutter run -d <device-id>
    ```
 
-4. **Build APK (untuk distribusi)**
+8. **Build APK (Distribusi)**
    ```bash
    # Debug APK
    flutter build apk --debug
@@ -128,155 +273,190 @@ Aplikasi manajemen keuangan pribadi yang dikembangkan dengan Flutter, featuring 
    # Release APK
    flutter build apk --release
 
-   # App Bundle (untuk Play Store)
+   # App Bundle (Play Store)
    flutter build appbundle --release
    ```
 
-## 📂 Struktur Project
+---
+
+## 🏗️ Arsitektur Project
 
 ```
 lib/
 ├── constants/
-│   ├── app_constants.dart      # Konstanta app (warna, ukuran, dll)
-│   └── app_theme.dart          # Theme configuration
+│   ├── app_constants.dart          # Konstanta (warna, ukuran, kategori)
+│   └── app_theme.dart              # Konfigurasi tema (light & dark)
 ├── database/
-│   └── database_helper.dart    # SQLite helper
+│   └── database_helper.dart        # SQLite helper (CRUD lokal)
 ├── models/
-│   ├── budget_model.dart       # Model budget
-│   ├── category_model.dart     # Model kategori
-│   ├── transaction_model.dart  # Model transaksi
-│   └── user_model.dart         # Model user
+│   ├── budget_model.dart           # Model data budget
+│   ├── category_model.dart         # Model data kategori
+│   ├── transaction_model.dart      # Model data transaksi
+│   └── user_model.dart             # Model data pengguna
 ├── providers/
-│   ├── budget_provider.dart    # Budget state management
-│   ├── category_provider.dart  # Category state management
-│   ├── transaction_provider.dart # Transaction state management
-│   └── user_provider.dart      # User state management
+│   ├── budget_provider.dart        # State management budget
+│   ├── category_provider.dart      # State management kategori
+│   ├── theme_provider.dart         # State management tema
+│   ├── transaction_provider.dart   # State management transaksi
+│   └── user_provider.dart          # State management user & auth
+├── services/
+│   └── firebase_service.dart       # Firebase Firestore & Supabase Storage
 ├── screens/
 │   ├── auth/
-│   │   ├── pin_screen.dart       # PIN verification
-│   │   └── pin_setup_screen.dart # PIN setup
+│   │   ├── login_screen.dart         # Login (Email & Google)
+│   │   ├── register_screen.dart      # Registrasi akun baru
+│   │   ├── reset_password_screen.dart # Reset kata sandi
+│   │   ├── pin_screen.dart           # Verifikasi PIN login
+│   │   └── pin_setup_screen.dart     # Setup PIN pertama kali
 │   ├── budget/
-│   │   └── budget_screen.dart    # Budget management
+│   │   └── budget_screen.dart        # Manajemen budget
+│   ├── calculator/
+│   │   └── calculator_screen.dart    # Kalkulator keuangan
+│   ├── category/
+│   │   └── category_screen.dart      # Kelola kategori kustom
+│   ├── chat/
+│   │   └── chat_screen.dart          # AI Consultant (Gemini)
 │   ├── dashboard/
-│   │   └── dashboard_screen.dart # Main dashboard
+│   │   └── dashboard_screen.dart     # Dashboard utama
+│   ├── gallery/
+│   │   ├── gallery_screen.dart       # Galeri bukti transaksi
+│   │   └── full_screen_image_screen.dart # Viewer gambar full-screen
 │   ├── home/
-│   │   └── main_screen.dart      # Bottom navigation
+│   │   └── main_screen.dart          # Layout adaptif & navigasi
 │   ├── onboarding/
-│   │   └── onboarding_screen.dart # Onboarding screens
+│   │   └── onboarding_screen.dart    # Onboarding pertama kali
 │   ├── settings/
-│   │   └── settings_screen.dart  # Settings
-│   ├── splash_screen.dart        # Splash screen
+│   │   └── settings_screen.dart      # Halaman pengaturan
+│   ├── splash_screen.dart            # Splash screen
 │   ├── statistics/
-│   │   └── statistics_screen.dart # Statistics & reports
+│   │   └── statistics_screen.dart    # Statistik & laporan
 │   └── transaction/
-│       ├── add_transaction_screen.dart  # Add transaction form
-│       └── transaction_list_screen.dart # Transaction list
+│       ├── add_transaction_screen.dart  # Form tambah transaksi
+│       └── transaction_list_screen.dart # Daftar semua transaksi
 ├── utils/
-│   ├── currency_formatter.dart  # Format mata uang
-│   └── date_formatter.dart      # Format tanggal
-└── main.dart                    # Entry point
+│   ├── currency_formatter.dart     # Format mata uang Rupiah
+│   └── date_formatter.dart         # Format tanggal Indonesia
+└── main.dart                       # Entry point aplikasi
 ```
 
-## 🎨 Customization
+---
 
-### Warna Theme
-Edit di `lib/constants/app_constants.dart`:
-```dart
-static const Color primaryOrange = Color(0xFFFF6B00);
-static const Color primaryRed = Color(0xFFE63946);
-```
+## 📝 Panduan Penggunaan
 
-### Kategori Default
-Edit di `lib/constants/app_constants.dart`:
-```dart
-static const List<Map<String, dynamic>> defaultExpenseCategories = [
-  {'name': 'Makanan', 'icon': 'restaurant', 'color': '#FF6B00'},
-  // Tambah kategori lain di sini
-];
-```
+### 1. 🔑 Registrasi & Login
+- Buka aplikasi → Halaman Login
+- **Daftar baru**: Tap "Daftar" → Isi nama, email, dan kata sandi
+- **Login Google**: Tap "Masuk dengan Google" untuk login cepat
+- **Lupa kata sandi**: Tap "Lupa kata sandi?" → Masukkan email → Cek inbox
+- Setelah login, setup **6-digit PIN** untuk keamanan lokal
 
-## 📝 Cara Penggunaan
+### 2. 📊 Dashboard
+- Lihat **saldo total** di card gradien atas
+- Tap ikon mata 👁️ untuk hide/show saldo
+- Gunakan **Quick Action** untuk tambah pemasukan/pengeluaran/budget
+- Lihat **Pie Chart** ringkasan bulan ini (pemasukan vs pengeluaran)
+- Tap **avatar profil** (kanan atas) untuk langsung ke Pengaturan
 
-### 1. First Time Setup
-- Buka aplikasi → Onboarding screens
-- Setup 6-digit PIN untuk keamanan
-- Masukkan PIN untuk login selanjutnya
+### 3. ➕ Tambah Transaksi
+- Tap tombol **Kalkulator** (FAB di tengah bottom nav) atau Quick Action
+- Pilih tipe: **Pemasukan** / **Pengeluaran**
+- Input nominal (format Rupiah otomatis)
+- Pilih kategori → Set tanggal → Tambah catatan (opsional)
+- Lampirkan **foto bukti** dari kamera/galeri (otomatis upload ke cloud)
+- Tap **"Simpan Transaksi"**
 
-### 2. Dashboard
-- Lihat saldo total di card atas
-- Tap icon mata untuk hide/show saldo
-- Gunakan quick action buttons untuk tambah transaksi
+### 4. 📋 Lihat & Kelola Transaksi
+- Tab **"Transaksi"** di bottom navigation
+- Filter: Semua / Pemasukan / Pengeluaran
+- **Swipe kiri** pada transaksi untuk menghapus
 
-### 3. Tambah Transaksi
-- Tap tombol + di bottom navigation
-- Pilih tipe: Pemasukan/Pengeluaran
-- Input nominal (format otomatis Rupiah)
-- Pilih kategori
-- Set tanggal (default: hari ini)
-- Tambah catatan opsional
-- Tap "Simpan Transaksi"
+### 5. 📈 Statistik
+- Tab **"Statistik"** di bottom navigation
+- Pilih periode: **Minggu Ini / Bulan Ini / Tahun Ini**
+- Lihat **Bar Chart** perbandingan dan **Pie Chart** breakdown
 
-### 4. Lihat Transaksi
-- Tab "Transaksi" di bottom navigation
-- Filter: Semua/Pemasukan/Pengeluaran
-- Swipe kiri untuk delete
+### 6. 💼 Budget
+- Dari Pengaturan → **Kelola Budget**
+- Tap tombol **+** untuk tambah budget baru
+- Pilih kategori dan nominal limit bulanan
+- **Progress bar** menunjukkan penggunaan (hijau → kuning → merah)
 
-### 5. Statistik
-- Tab "Statistik" di bottom navigation
-- Pilih periode: Minggu Ini/Bulan Ini/Tahun Ini
-- Lihat charts dan breakdown
+### 7. 🤖 AI Consultation
+- Dari dashboard, tap banner **"Ingin Konsultasi?"**
+- Ketik pertanyaan keuangan Anda
+- AI Gemini akan memberikan **saran personal** berdasarkan data keuangan Anda
+- Contoh: _"Bagaimana cara menghemat pengeluaran bulan ini?"_
 
-### 6. Budget
-- Dari Settings → Kelola Budget
-- Tap tombol + untuk tambah budget
-- Pilih kategori dan nominal limit
-- Progress bar akan menunjukkan penggunaan
+### 8. 🧮 Kalkulator
+- Tap tombol **kalkulator** (FAB di tengah bawah)
+- Gunakan untuk kalkulasi cepat sebelum input transaksi
+- Riwayat perhitungan tersimpan selama sesi
 
-### 7. Settings
-- Tap tab "Pengaturan"
-- Edit profil dan nama
-- Toggle hide/show balance
-- Enable/disable biometric
+### 9. 🖼️ Galeri Bukti
+- Dari Pengaturan → **Galeri Bukti Transaksi**
+- Lihat semua foto bukti transaksi dalam tampilan grid
+- Filter berdasarkan periode atau tahun
+- Tap gambar untuk **full-screen view**
+
+### 10. ⚙️ Pengaturan
+- Tab **"Pengaturan"** atau tap avatar di dashboard
+- Edit nama & foto profil
+- Toggle **tema gelap** / **sembunyikan saldo** / **biometrik**
+- Kelola **kategori kustom** dan **budget**
+- Lihat **info aplikasi** atau **logout**
+
+---
 
 ## 🔒 Keamanan
 
-- **PIN Protection**: 6-digit PIN untuk login
-- **Biometric**: Opsional fingerprint/face recognition
-- **Local Storage**: Semua data tersimpan di device (offline-first)
-- **No Internet**: Tidak memerlukan koneksi internet
+| Lapisan | Metode |
+|---------|--------|
+| **Cloud Auth** | Firebase Authentication (Email/Google OAuth) |
+| **Local Auth** | 6-digit PIN verification |
+| **Biometric** | Fingerprint / Face ID (opsional) |
+| **Data Sync** | Firestore dengan UID-based isolation |
+| **Storage** | Supabase Storage dengan path per-user |
+| **Env Vars** | API keys tersimpan di `.env` (tidak di-commit) |
+
+---
 
 ## 🐛 Troubleshooting
 
-### Issue: Database error
-```bash
-# Uninstall app dan install ulang
-flutter clean
-flutter pub get
-flutter run
-```
+| Masalah | Solusi |
+|---------|--------|
+| Database error | `flutter clean && flutter pub get && flutter run` |
+| Charts tidak muncul | Pastikan `fl_chart` terinstall: `flutter pub get` |
+| PIN lupa | Uninstall & install ulang aplikasi |
+| Firebase error | Pastikan `google-services.json` ada di `android/app/` |
+| Gemini AI tidak merespons | Cek API Key di file `.env` |
+| Foto tidak terupload | Cek konfigurasi Supabase bucket (public access) |
+| Login Google gagal | Pastikan SHA-1/SHA-256 terdaftar di Firebase Console |
 
-### Issue: Charts tidak muncul
-- Pastikan package fl_chart terinstall: `flutter pub get`
-- Restart aplikasi
-
-### Issue: PIN lupa
-- Uninstall aplikasi dan install ulang
-- Semua data akan hilang
+---
 
 ## 📄 Lisensi
 
-Aplikasi ini dikembangkan untuk tujuan edukasi dan penggunaan pribadi.
+Aplikasi ini dikembangkan untuk tujuan **edukasi** dan **penggunaan pribadi** sebagai bagian dari mata kuliah **Metode Penelitian** Semester 5.
 
 ## 👨‍💻 Developer
 
-Dibuat dengan Flutter dan ❤️
+**Agus Susanto** — Mahasiswa Informatika
+
+Dibuat dengan **Flutter** dan ❤️
 
 ---
 
 ## 📞 Support
 
-Untuk pertanyaan atau issues, silakan buka issue di repository.
+Untuk pertanyaan, bug report, atau fitur request, silakan buka **Issue** di repository ini.
 
 ---
 
-**Catatan**: Aplikasi ini masih dalam pengembangan. Fitur tambahan akan ditambahkan secara berkala.
+<div align="center">
+
+**FinanceTracker v1.0.0** — Smart Personal Finance Manager
+
+_Powered by Flutter • Firebase • Supabase • Gemini AI_
+
+</div>
+]]>
