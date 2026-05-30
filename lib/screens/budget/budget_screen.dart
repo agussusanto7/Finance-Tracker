@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_constants.dart';
 import '../../models/budget_model.dart';
@@ -291,6 +292,10 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   TextField(
                     controller: amountController,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      _CurrencyInputFormatter(),
+                    ],
                     decoration: InputDecoration(
                       hintText: '0',
                       prefixText: 'Rp ',
@@ -386,6 +391,28 @@ class _BudgetScreenState extends State<BudgetScreen> {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CurrencyInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    if (newValue.text.isEmpty) {
+      return newValue;
+    }
+
+    final value = int.tryParse(newValue.text) ?? 0;
+    final formatted = CurrencyFormatter.formatCurrency(
+      value.toDouble(),
+    ).replaceAll('Rp ', '');
+
+    return newValue.copyWith(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }

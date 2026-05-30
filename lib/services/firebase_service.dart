@@ -25,6 +25,12 @@ class FirebaseService {
     return _firestore.collection('users').doc(uid).collection('transactions');
   }
 
+  CollectionReference<Map<String, dynamic>>? get _userBudgets {
+    final uid = currentUserId;
+    if (uid == null) return null;
+    return _firestore.collection('users').doc(uid).collection('budgets');
+  }
+
   // ==== TRANSACTION METHODS ====
 
   Future<void> createTransaction(TransactionModel transaction) async {
@@ -37,7 +43,10 @@ class FirebaseService {
       finalImagePath = await uploadReceiptImage(finalImagePath);
     }
 
-    final newDoc = collection.doc();
+    final String prefix = transaction.type == TransactionType.income ? 'pemasukan' : 'pengeluaran';
+    final String customDocId = '${prefix}_${collection.doc().id}';
+    final newDoc = collection.doc(customDocId);
+    
     final data = transaction.copyWith(id: newDoc.id).toMap();
     
     // Paksa update image_path (karena copyWith akan mengabaikan nilai null)
@@ -108,6 +117,31 @@ class FirebaseService {
       }
     }
     return total;
+  }
+
+  // ==== BUDGET METHODS ====
+
+  Future<void> saveBudget(Map<String, dynamic> budgetMap, String category) async {
+    final collection = _userBudgets;
+    if (collection == null) return;
+    
+    // Gunakan category sebagai Document ID
+    await collection.doc(category).set(budgetMap);
+  }
+
+  Future<void> deleteBudget(String category) async {
+    final collection = _userBudgets;
+    if (collection == null) return;
+    
+    await collection.doc(category).delete();
+  }
+
+  Future<List<Map<String, dynamic>>> getAllBudgets() async {
+    final collection = _userBudgets;
+    if (collection == null) return [];
+
+    final snapshot = await collection.get();
+    return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
   }
 
   // ==== STORAGE METHODS (Menggunakan Supabase Storage) ====
