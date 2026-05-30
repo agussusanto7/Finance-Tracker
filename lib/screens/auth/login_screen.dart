@@ -114,18 +114,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         // Logo
                         Image.asset(
                           'assets/images/launcher.png',
-                          width: size.width * 0.25,
+                          width: size.width * 0.15,
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
                           'Finance Tracker',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: AppConstants.primaryColor,
                           ),
                         ),
-                        const SizedBox(height: 48),
+                        SizedBox(height: size.height * 0.02),
                         
                         Text(
                           'Selamat Datang',
@@ -134,14 +134,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             color: cs.onSurface,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
                           'Masukkan email dan kata sandi untuk masuk',
                           style: textTheme.bodyMedium?.copyWith(
                             color: cs.onSurface.withOpacity(0.7),
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        SizedBox(height: size.height * 0.02),
                         
                         // Email Field
                         TextFormField(
@@ -169,7 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         
                         // Password Field
                         TextFormField(
@@ -229,15 +229,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: size.height * 0.015),
                         
                         // Tombol Masuk
                         SizedBox(
                           width: double.infinity,
-                          height: 50,
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _login,
                             style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               backgroundColor: AppConstants.primaryColor,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -251,7 +251,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: size.height * 0.015),
                         
                         // Atau
                         Row(
@@ -267,15 +267,15 @@ class _LoginScreenState extends State<LoginScreen> {
                             Expanded(child: Divider(color: cs.onSurface.withOpacity(0.2))),
                           ],
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: size.height * 0.015),
                         
                         // Tombol Google
                         SizedBox(
                           width: double.infinity,
-                          height: 50,
                           child: OutlinedButton(
                             onPressed: _isLoading ? null : _loginWithGoogle,
                             style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               side: BorderSide(color: cs.onSurface.withOpacity(0.2)),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
@@ -298,7 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 40),
+                        SizedBox(height: size.height * 0.02),
                         
                         // Daftar
                         RichText(

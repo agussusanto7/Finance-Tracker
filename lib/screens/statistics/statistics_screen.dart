@@ -19,6 +19,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   late TabController _tabController;
   int _selectedPeriod = 1;
   final List<String> _periods = ['Minggu Ini', 'Bulan Ini', 'Tahun Ini'];
+  DateTime _currentDate = DateTime.now();
 
   @override
   void initState() {
@@ -29,9 +30,12 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       initialIndex: _selectedPeriod,
     );
     _tabController.addListener(() {
-      setState(() {
-        _selectedPeriod = _tabController.index;
-      });
+      if (_tabController.indexIsChanging) {
+        setState(() {
+          _selectedPeriod = _tabController.index;
+          _currentDate = DateTime.now(); // reset date to now when changing tab
+        });
+      }
     });
   }
 
@@ -54,10 +58,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         centerTitle: true,
         title: Text(
           'Statistik',
-          style: TextStyle(
-            color: textPrimary,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: textPrimary, fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -66,12 +67,15 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildPeriodSelector(context),
+            const SizedBox(height: 16),
+            _buildDateNavigator(context),
             const SizedBox(height: 24),
             _buildSummaryCards(context),
             const SizedBox(height: 24),
             _buildIncomeExpenseChart(context),
             const SizedBox(height: 24),
             _buildCategoryBreakdown(context),
+            const SizedBox(height: 80),
           ],
         ),
       ),
@@ -111,7 +115,9 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: isSelected ? Colors.white : textSecondary,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                    fontWeight: isSelected
+                        ? FontWeight.w600
+                        : FontWeight.normal,
                     fontSize: 13,
                   ),
                 ),
@@ -120,6 +126,114 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           );
         }),
       ),
+    );
+  }
+
+  Widget _buildDateNavigator(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    String dateLabel = '';
+    
+    if (_selectedPeriod == 0) {
+      final startOfWeek = _currentDate.subtract(Duration(days: _currentDate.weekday - 1));
+      final endOfWeek = startOfWeek.add(const Duration(days: 6));
+      dateLabel = '${DateFormatter.formatShortDate(startOfWeek)} - ${DateFormatter.formatShortDate(endOfWeek)}';
+    } else if (_selectedPeriod == 1) {
+      dateLabel = DateFormatter.formatMonthYear(_currentDate);
+    } else {
+      dateLabel = '${_currentDate.year}';
+    }
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          icon: Icon(Icons.chevron_left, color: cs.onSurface),
+          onPressed: () {
+            setState(() {
+              if (_selectedPeriod == 0) {
+                _currentDate = _currentDate.subtract(const Duration(days: 7));
+              } else if (_selectedPeriod == 1) {
+                _currentDate = DateTime(_currentDate.year, _currentDate.month - 1, _currentDate.day);
+              } else {
+                _currentDate = DateTime(_currentDate.year - 1, _currentDate.month, _currentDate.day);
+              }
+            });
+          },
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+            child: InkWell(
+              onTap: () async {
+                final DateTime? picked = await showDatePicker(
+                  context: context,
+                  initialDate: _currentDate,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  initialDatePickerMode: _selectedPeriod == 2 ? DatePickerMode.year : DatePickerMode.day,
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: Theme.of(context).colorScheme.copyWith(
+                              primary: cs.primary,
+                            ),
+                      ),
+                      child: child!,
+                    );
+                  },
+                );
+                if (picked != null && picked != _currentDate) {
+                  setState(() {
+                    _currentDate = picked;
+                  });
+                }
+              },
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                decoration: BoxDecoration(
+                  color: cs.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          dateLabel,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: cs.onSurface,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_drop_down, size: 20, color: cs.primary),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        IconButton(
+          icon: Icon(Icons.chevron_right, color: cs.onSurface),
+          onPressed: () {
+            setState(() {
+              if (_selectedPeriod == 0) {
+                _currentDate = _currentDate.add(const Duration(days: 7));
+              } else if (_selectedPeriod == 1) {
+                _currentDate = DateTime(_currentDate.year, _currentDate.month + 1, _currentDate.day);
+              } else {
+                _currentDate = DateTime(_currentDate.year + 1, _currentDate.month, _currentDate.day);
+              }
+            });
+          },
+        ),
+      ],
     );
   }
 
@@ -203,9 +317,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         color: cs.surface,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: const Center(
-        child: CircularProgressIndicator(strokeWidth: 2),
-      ),
+      child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
     );
   }
 
@@ -228,10 +340,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            cardBg,
-            cardBg.withOpacity(0.95),
-          ],
+          colors: [cardBg, cardBg.withOpacity(0.95)],
         ),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
@@ -257,14 +366,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    color: textSecondary,
-                    fontSize: 12,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    title,
+                    style: TextStyle(color: textSecondary, fontSize: 12),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -320,8 +428,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                     _selectedPeriod == 0
                         ? 'Transaksi Per Hari'
                         : _selectedPeriod == 1
-                            ? 'Transaksi Per Hari (Bulan Ini)'
-                            : 'Transaksi Per Bulan',
+                        ? 'Transaksi Per Hari'
+                        : 'Transaksi Per Bulan',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -360,14 +468,21 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
-                                child: CircularProgressIndicator());
+                              child: CircularProgressIndicator(),
+                            );
                           }
                           final data = snapshot.data ?? [];
                           final labels = [
-                            'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'
+                            'Sen',
+                            'Sel',
+                            'Rab',
+                            'Kam',
+                            'Jum',
+                            'Sab',
+                            'Min',
                           ];
-                          final now = DateTime.now();
-                          final highlightIdx = now.weekday - 1;
+                          final now = _currentDate;
+                          final highlightIdx = (now.year == DateTime.now().year && now.month == DateTime.now().month && now.day == DateTime.now().day) ? now.weekday - 1 : -1;
                           return _buildLineChart(
                             context: context,
                             data: data,
@@ -377,58 +492,68 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                         },
                       )
                     : _selectedPeriod == 1
-                        ? FutureBuilder<List<Map<String, double>>>(
-                            future: _getMonthlyDailyData(provider),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              final data = snapshot.data ?? [];
-                              final now = DateTime.now();
-                              final daysInMonth = DateTimeRange(
-                                start: DateTime(now.year, now.month, 1),
-                                end: DateTime(now.year, now.month + 1, 1),
-                              ).duration.inDays;
-                              // Labels tiap 5 hari
-                              final labels = List.generate(
-                                daysInMonth,
-                                (i) => (i + 1) % 5 == 1
-                                    ? '${i + 1}'
-                                    : '',
-                              );
-                              return _buildLineChart(
-                                context: context,
-                                data: data,
-                                labels: labels,
-                                highlightIndex: now.day - 1,
-                                showDotsAll: false,
-                              );
-                            },
-                          )
-                        : FutureBuilder<List<Map<String, double>>>(
-                            future: _getYearlyMonthlyData(provider),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                    child: CircularProgressIndicator());
-                              }
-                              final data = snapshot.data ?? [];
-                              final labels = [
-                                'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-                                'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
-                              ];
-                              final now = DateTime.now();
-                              return _buildLineChart(
-                                context: context,
-                                data: data,
-                                labels: labels,
-                                highlightIndex: now.month - 1,
-                              );
-                            },
-                          ),
+                    ? FutureBuilder<List<Map<String, double>>>(
+                        future: _getMonthlyDailyData(provider),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          final data = snapshot.data ?? [];
+                          final now = _currentDate;
+                          final daysInMonth = DateTimeRange(
+                            start: DateTime(now.year, now.month, 1),
+                            end: DateTime(now.year, now.month + 1, 1),
+                          ).duration.inDays;
+                          // Tampilkan SEMUA label tanggal (karena sekarang bisa di-scroll)
+                          final labels = List.generate(
+                            daysInMonth,
+                            (i) => '${i + 1}',
+                          );
+                          return _buildLineChart(
+                            context: context,
+                            data: data,
+                            labels: labels,
+                            highlightIndex: (now.year == DateTime.now().year && now.month == DateTime.now().month && now.day == DateTime.now().day) ? now.day - 1 : -1,
+                            showDotsAll: false,
+                          );
+                        },
+                      )
+                    : FutureBuilder<List<Map<String, double>>>(
+                        future: _getYearlyMonthlyData(provider),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                          final data = snapshot.data ?? [];
+                          final labels = [
+                            'Jan',
+                            'Feb',
+                            'Mar',
+                            'Apr',
+                            'Mei',
+                            'Jun',
+                            'Jul',
+                            'Agu',
+                            'Sep',
+                            'Okt',
+                            'Nov',
+                            'Des',
+                          ];
+                          final now = _currentDate;
+                          return _buildLineChart(
+                            context: context,
+                            data: data,
+                            labels: labels,
+                            highlightIndex: (now.year == DateTime.now().year) ? now.month - 1 : -1,
+                          );
+                        },
+                      ),
               ),
             ],
           ),
@@ -467,10 +592,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               const SizedBox(width: 6),
               Text(
                 'Pemasukan',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: textSecondary,
-                ),
+                style: TextStyle(fontSize: 11, color: textSecondary),
               ),
             ],
           ),
@@ -498,10 +620,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               const SizedBox(width: 6),
               Text(
                 'Pengeluaran',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: textSecondary,
-                ),
+                style: TextStyle(fontSize: 11, color: textSecondary),
               ),
             ],
           ),
@@ -509,7 +628,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       ),
     ];
   }
-
 
   /// Universal LineChart builder — dipakai oleh semua 3 periode
   Widget _buildLineChart({
@@ -540,21 +658,22 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     final maxX = ((data.length - 1).toDouble()).clamp(1.0, double.infinity);
     final hInterval = maxVal / 4 < 1 ? 1.0 : maxVal / 4;
 
-    return LineChart(
-      LineChartData(
+    final chartWidget = Padding(
+      padding: const EdgeInsets.only(right: 22, top: 10),
+      child: LineChart(
+        LineChartData(
         maxX: maxX,
         minX: 0,
-        maxY: maxVal * 1.3,
+        maxY: maxVal * 1.5, // Tambah batas atas agar tooltip panjang tidak terpotong
         minY: 0,
         clipData: const FlClipData.all(),
         lineTouchData: LineTouchData(
           enabled: true,
           touchTooltipData: LineTouchTooltipData(
+            fitInsideHorizontally: true,
+            fitInsideVertically: true,
             getTooltipColor: (spot) => cardBg,
-            tooltipBorder: BorderSide(
-              color: dividerColor,
-              width: 1,
-            ),
+            tooltipBorder: BorderSide(color: dividerColor, width: 1),
             tooltipPadding: const EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 8,
@@ -565,8 +684,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 final label = spot.x.toInt() < labels.length
                     ? labels[spot.x.toInt()]
                     : '';
+                
+                // Hanya tampilkan tanggal di item pertama agar tidak ganda
+                final isFirst = touchedSpots.indexOf(spot) == 0;
+                final dateStr = (isFirst && label.isNotEmpty) ? 'Tgl $label\n' : '';
+                
                 return LineTooltipItem(
-                  '${label.isNotEmpty ? '$label\n' : ''}${isIncome ? '▲ ' : '▼ '}${CurrencyFormatter.formatCompact(spot.y)}',
+                  '$dateStr${isIncome ? 'Pemasukan: ' : 'Pengeluaran: '}${CurrencyFormatter.formatCompact(spot.y)}',
                   TextStyle(
                     color: isIncome
                         ? AppConstants.successColor
@@ -582,32 +706,21 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         ),
         borderData: FlBorderData(
           show: true,
-          border: Border.all(
-            color: dividerColor.withOpacity(0.5),
-            width: 1,
-          ),
+          border: Border.all(color: dividerColor.withOpacity(0.5), width: 1),
         ),
         gridData: FlGridData(
           show: true,
           drawVerticalLine: true,
           horizontalInterval: hInterval,
           verticalInterval: maxX / 6,
-          getDrawingHorizontalLine: (value) => FlLine(
-            color: dividerColor.withOpacity(0.3),
-            strokeWidth: 1,
-          ),
-          getDrawingVerticalLine: (value) => FlLine(
-            color: dividerColor.withOpacity(0.3),
-            strokeWidth: 1,
-          ),
+          getDrawingHorizontalLine: (value) =>
+              FlLine(color: dividerColor.withOpacity(0.3), strokeWidth: 1),
+          getDrawingVerticalLine: (value) =>
+              FlLine(color: dividerColor.withOpacity(0.3), strokeWidth: 1),
         ),
         titlesData: FlTitlesData(
-          topTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          rightTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
+          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           leftTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -620,10 +733,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   padding: const EdgeInsets.only(right: 4),
                   child: Text(
                     CurrencyFormatter.formatCompact(value),
-                    style: TextStyle(
-                      color: textSecondary,
-                      fontSize: 9,
-                    ),
+                    style: TextStyle(color: textSecondary, fontSize: 9),
                     textAlign: TextAlign.right,
                   ),
                 );
@@ -633,7 +743,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 28,
+              reservedSize: 36, // sedikit diperbesar untuk teks miring
               interval: 1,
               getTitlesWidget: (value, meta) {
                 final idx = value.toInt();
@@ -645,16 +755,19 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                 final isHighlight = idx == highlightIndex;
                 return Padding(
                   padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      color: isHighlight
-                          ? AppConstants.primaryColor
-                          : textSecondary,
-                      fontSize: 10,
-                      fontWeight: isHighlight
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                  child: Transform.rotate(
+                    angle: -0.6, // Teks miring agar tidak bertabrakan
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        color: isHighlight
+                            ? AppConstants.primaryColor
+                            : textSecondary,
+                        fontSize: 9, // Diperkecil sedikit agar muat
+                        fontWeight: isHighlight
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
                     ),
                   ),
                 );
@@ -745,13 +858,50 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           ),
         ],
       ),
+      ),
     );
+
+    // Jika data terlalu banyak (seperti bulanan), jadikan scrollable
+    if (data.length > 12) {
+      return Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              child: SizedBox(
+                width: data.length * 30.0, // 30 px per tanggal
+                child: chartWidget,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.swipe, size: 12, color: textSecondary),
+              const SizedBox(width: 6),
+              Text(
+                '* Geser grafik untuk melihat detail',
+                style: TextStyle(
+                  fontSize: 10,
+                  color: textSecondary,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    return chartWidget;
   }
 
   Future<List<Map<String, double>>> _getWeeklyDailyData(
     TransactionProvider provider,
   ) async {
-    final now = DateTime.now();
+    final now = _currentDate;
     final startOfWeek = DateTime(
       now.year,
       now.month,
@@ -780,10 +930,13 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   Future<List<Map<String, double>>> _getMonthlyDailyData(
     TransactionProvider provider,
   ) async {
-    final now = DateTime.now();
+    final now = _currentDate;
     final startOfMonth = DateTime(now.year, now.month, 1);
-    final daysInMonth =
-        DateTime(now.year, now.month + 1, 1).difference(startOfMonth).inDays;
+    final daysInMonth = DateTime(
+      now.year,
+      now.month + 1,
+      1,
+    ).difference(startOfMonth).inDays;
 
     final List<Map<String, double>> result = [];
     for (int i = 0; i < daysInMonth; i++) {
@@ -807,7 +960,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   Future<List<Map<String, double>>> _getYearlyMonthlyData(
     TransactionProvider provider,
   ) async {
-    final now = DateTime.now();
+    final now = _currentDate;
     final List<Map<String, double>> result = [];
     for (int month = 1; month <= 12; month++) {
       final startOfMonth = DateTime(now.year, month, 1);
@@ -861,149 +1014,155 @@ class _StatisticsScreenState extends State<StatisticsScreen>
               ),
               const SizedBox(height: 20),
               FutureBuilder(
-                future: provider.getExpensesByCategory(DateTime.now()),
+                future: provider.getExpensesByCategory(_currentDate),
                 builder:
                     (context, AsyncSnapshot<Map<String, double>> snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const SizedBox(
-                      height: 200,
-                      child: Center(child: CircularProgressIndicator()),
-                    );
-                  }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const SizedBox(
+                          height: 200,
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
 
-                  if (snapshot.hasError ||
-                      !snapshot.hasData ||
-                      snapshot.data!.isEmpty) {
-                    return Container(
-                      height: 200,
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.pie_chart_outline,
-                            size: 48,
-                            color: textSecondary,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            'Belum ada data pengeluaran',
-                            style: TextStyle(color: textSecondary),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  final expensesByCategory = snapshot.data!;
-                  final sortedCategories =
-                      expensesByCategory.entries.toList()
-                        ..sort((a, b) => b.value.compareTo(a.value));
-
-                  final totalExpense = sortedCategories.fold<double>(
-                    0,
-                    (sum, entry) => sum + entry.value,
-                  );
-
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: 200,
-                        child: PieChart(
-                          PieChartData(
-                            sections: sortedCategories.asMap().entries.map(
-                              (entry) {
-                                final index = entry.key;
-                                final category = entry.value;
-                                final percentage =
-                                    (category.value / totalExpense * 100);
-                                final color =
-                                    AppConstants.chartColors[index %
-                                        AppConstants.chartColors.length];
-
-                                return PieChartSectionData(
-                                  value: category.value,
-                                  title: percentage > 5
-                                      ? '${percentage.toInt()}%'
-                                      : '',
-                                  color: color,
-                                  radius: 65,
-                                  titleStyle: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                );
-                              },
-                            ).toList(),
-                            sectionsSpace: 2,
-                            centerSpaceRadius: 35,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      ...sortedCategories.take(5).map((entry) {
-                        final percentage =
-                            (entry.value / totalExpense * 100);
-                        final colorIndex = sortedCategories.indexOf(entry) %
-                            AppConstants.chartColors.length;
+                      if (snapshot.hasError ||
+                          !snapshot.hasData ||
+                          snapshot.data!.isEmpty) {
                         return Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: Row(
+                          height: 200,
+                          alignment: Alignment.center,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                width: 12,
-                                height: 12,
-                                decoration: BoxDecoration(
-                                  color: AppConstants.chartColors[colorIndex],
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
+                              Icon(
+                                Icons.pie_chart_outline,
+                                size: 48,
+                                color: textSecondary,
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  entry.key,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: textPrimary,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppConstants.chartColors[colorIndex]
-                                      .withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  '${percentage.toInt()}%',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppConstants.chartColors[colorIndex],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
+                              const SizedBox(height: 12),
                               Text(
-                                CurrencyFormatter.formatCompact(entry.value),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: textPrimary,
-                                ),
+                                'Belum ada data pengeluaran',
+                                style: TextStyle(color: textSecondary),
                               ),
                             ],
                           ),
                         );
-                      }),
-                    ],
-                  );
-                },
+                      }
+
+                      final expensesByCategory = snapshot.data!;
+                      final sortedCategories =
+                          expensesByCategory.entries.toList()
+                            ..sort((a, b) => b.value.compareTo(a.value));
+
+                      final totalExpense = sortedCategories.fold<double>(
+                        0,
+                        (sum, entry) => sum + entry.value,
+                      );
+
+                      return Column(
+                        children: [
+                          SizedBox(
+                            height: 200,
+                            child: PieChart(
+                              PieChartData(
+                                sections: sortedCategories.asMap().entries.map((
+                                  entry,
+                                ) {
+                                  final index = entry.key;
+                                  final category = entry.value;
+                                  final percentage =
+                                      (category.value / totalExpense * 100);
+                                  final color =
+                                      AppConstants.chartColors[index %
+                                          AppConstants.chartColors.length];
+
+                                  return PieChartSectionData(
+                                    value: category.value,
+                                    title: percentage > 5
+                                        ? '${percentage.toInt()}%'
+                                        : '',
+                                    color: color,
+                                    radius: 65,
+                                    titleStyle: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  );
+                                }).toList(),
+                                sectionsSpace: 2,
+                                centerSpaceRadius: 35,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          ...sortedCategories.take(5).map((entry) {
+                            final percentage =
+                                (entry.value / totalExpense * 100);
+                            final colorIndex =
+                                sortedCategories.indexOf(entry) %
+                                AppConstants.chartColors.length;
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 12),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 12,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          AppConstants.chartColors[colorIndex],
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      entry.key,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: textPrimary,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppConstants
+                                          .chartColors[colorIndex]
+                                          .withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      '${percentage.toInt()}%',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppConstants
+                                            .chartColors[colorIndex],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    CurrencyFormatter.formatCompact(
+                                      entry.value,
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                      color: textPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ],
+                      );
+                    },
               ),
             ],
           ),
@@ -1015,7 +1174,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
   Future<Map<String, double>> _getPeriodData(
     TransactionProvider provider,
   ) async {
-    DateTime now = DateTime.now();
+    final now = _currentDate;
 
     switch (_selectedPeriod) {
       case 0:

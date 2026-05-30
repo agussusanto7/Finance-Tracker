@@ -10,6 +10,7 @@ import '../../utils/date_formatter.dart';
 import '../chat/chat_screen.dart';
 import '../transaction/add_transaction_screen.dart';
 import '../budget/budget_screen.dart';
+import '../home/main_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -64,7 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final firstName = userName.split(' ').first;
         
         return SliverAppBar(
-          expandedHeight: 140,
+          expandedHeight: 180,
           floating: false,
           pinned: true,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -248,14 +249,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      label,
-                      style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
-                        fontSize: 11,
+                    SizedBox(
+                      width: double.infinity,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          label,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 11,
+                          ),
+                        ),
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 2),
                     FittedBox(
@@ -313,49 +319,55 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildQuickActionButton(
-                context: context,
-                icon: Icons.arrow_downward_rounded,
-                label: 'Pemasukan',
-                color: AppConstants.successColor,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddTransactionScreen(
-                        initialType: TransactionType.income,
+              Expanded(
+                child: _buildQuickActionButton(
+                  context: context,
+                  icon: Icons.arrow_downward_rounded,
+                  label: 'Pemasukan',
+                  color: AppConstants.successColor,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AddTransactionScreen(
+                          initialType: TransactionType.income,
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-              _buildQuickActionButton(
-                context: context,
-                icon: Icons.arrow_upward_rounded,
-                label: 'Pengeluaran',
-                color: AppConstants.errorColor,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const AddTransactionScreen(
-                        initialType: TransactionType.expense,
+              Expanded(
+                child: _buildQuickActionButton(
+                  context: context,
+                  icon: Icons.arrow_upward_rounded,
+                  label: 'Pengeluaran',
+                  color: AppConstants.errorColor,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AddTransactionScreen(
+                          initialType: TransactionType.expense,
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-              _buildQuickActionButton(
-                context: context,
-                icon: Icons.account_balance_wallet_rounded,
-                label: 'Budget',
-                color: AppConstants.primaryColor,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const BudgetScreen()),
-                  );
-                },
+              Expanded(
+                child: _buildQuickActionButton(
+                  context: context,
+                  icon: Icons.account_balance_wallet_rounded,
+                  label: 'Budget',
+                  color: AppConstants.primaryColor,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const BudgetScreen()),
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -389,12 +401,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Icon(icon, color: color, size: 28),
             ),
             const SizedBox(height: 10),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: textPrimary,
+            SizedBox(
+              width: double.infinity,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: textPrimary,
+                  ),
+                ),
               ),
             ),
           ],
@@ -494,28 +512,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             value: income,
                                             color: AppConstants.successColor,
                                             radius: 25,
-                                            title:
-                                                '${((income / total) * 100).toInt()}%',
-                                            titleStyle: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            titlePositionPercentageOffset: 0.6,
+                                            showTitle: false,
                                           ),
                                         if (expense > 0)
                                           PieChartSectionData(
                                             value: expense,
                                             color: AppConstants.errorColor,
                                             radius: 25,
-                                            title:
-                                                '${((expense / total) * 100).toInt()}%',
-                                            titleStyle: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            titlePositionPercentageOffset: 0.6,
+                                            showTitle: false,
                                           ),
                                       ],
                                 sectionsSpace: total == 0 ? 0 : 2,
@@ -559,9 +563,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   value: CurrencyFormatter.formatCompact(
                                     income - expense,
                                   ),
-                                  percentage: total > 0
-                                      ? '${(((income - expense) / total) * 100).toInt()}%'
-                                      : '0%',
                                 ),
                               ],
                             ),
@@ -606,14 +607,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: textSecondary,
+              SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: textSecondary,
+                    ),
+                  ),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
               ),
               if (percentage != null)
                 Text(
@@ -674,16 +680,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'Transaksi Terbaru',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: textPrimary,
+                  Expanded(
+                    child: Text(
+                      'Transaksi Terbaru',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: textPrimary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MainScreen(initialIndex: 1),
+                        ),
+                        (route) => false,
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
                     child: Text(
                       'Lihat Semua',
                       style: TextStyle(

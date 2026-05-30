@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
 import '../../constants/app_constants.dart';
 
+// Variabel global agar riwayat tidak hilang walau kalkulator ditutup
+final List<String> _globalCalculationHistory = [];
+
 class CalculatorScreen extends StatefulWidget {
   const CalculatorScreen({super.key});
 
@@ -14,13 +17,14 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   String _result = "0";
   String _expression = "";
   String _history = "";
+  String _lastOperation = "";
 
   String _formatEquation(String eq) {
     final regex = RegExp(r'(\d+)(,\d+)?');
     return eq.replaceAllMapped(regex, (Match m) {
       String integerPart = m[1]!;
       String fractionalPart = m[2] ?? '';
-      
+
       String formattedInteger = '';
       int count = 0;
       for (int i = integerPart.length - 1; i >= 0; i--) {
@@ -40,6 +44,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         _equation = "0";
         _result = "0";
         _history = "";
+        _lastOperation = "";
       } else if (buttonText == "⌫") {
         _equation = _equation.substring(0, _equation.length - 1);
         if (_equation == "") {
@@ -63,25 +68,68 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           // Abaikan jika bukan angka
         }
       } else if (buttonText == "=") {
-        _history = _formatEquation(_equation); // Simpan history sebelum dihitung
+        bool hasOperator = _equation.contains('+') || 
+                           _equation.contains('×') || 
+                           _equation.contains('÷') || 
+                           _equation.lastIndexOf('-') > 0;
+                           
+        if (!hasOperator && _lastOperation.isNotEmpty) {
+          // iPhone behavior: if no operator but we have a last operation, append it
+          _equation = _equation + _lastOperation;
+        } else if (hasOperator) {
+          // Extract the last operation to save it for future '=' spam
+          final operators = ['+', '-', '×', '÷'];
+          for (int i = _equation.length - 1; i >= 1; i--) {
+            if (operators.contains(_equation[i])) {
+              // Abaikan tanda +/- jika itu adalah bagian dari eksponen (scientific notation) seperti e+21
+              if ((_equation[i] == '+' || _equation[i] == '-') && i > 0 && (_equation[i - 1].toLowerCase() == 'e')) {
+                continue;
+              }
+              _lastOperation = _equation.substring(i);
+              break;
+            }
+          }
+        }
+
+        _history = _formatEquation(
+          _equation,
+        ); // Simpan history sebelum dihitung
         _expression = _equation;
         _expression = _expression.replaceAll('×', '*');
         _expression = _expression.replaceAll('÷', '/');
         _expression = _expression.replaceAll(',', '.');
         
+        // Fix untuk scientific notation (misal 1.18e+21) yang ditafsirkan salah oleh math_expressions
+        _expression = _expression.replaceAllMapped(RegExp(r'e([+-]?\d+)'), (match) {
+          return '*10^${match[1]}';
+        });
+
         try {
           Parser p = Parser();
           Expression exp = p.parse(_expression);
 
           ContextModel cm = ContextModel();
           _result = '${exp.evaluate(EvaluationType.REAL, cm)}';
-          
+
           if (_result.endsWith(".0")) {
             _result = _result.substring(0, _result.length - 2);
           }
           // Ubah kembali titik desimal bawaan dart/math_expressions menjadi koma
           _result = _result.replaceAll('.', ',');
           _equation = _result;
+
+          // Tambahkan ke riwayat global hanya jika ada operasi hitungan
+          // (Mencegah spam '=' atau sekadar angka tunggal tersimpan berulang kali)
+          final hasOperator = _expression.contains('+') || 
+                              _expression.contains('*') || 
+                              _expression.contains('/') || 
+                              _expression.lastIndexOf('-') > 0;
+          if (hasOperator) {
+            final newHistoryItem = '$_history = $_result';
+            if (_globalCalculationHistory.isEmpty || _globalCalculationHistory.first != newHistoryItem) {
+              _globalCalculationHistory.insert(0, newHistoryItem);
+            }
+          }
         } catch (e) {
           _result = "Error";
           _equation = "Error";
@@ -96,28 +144,37 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
     });
   }
 
-  Widget _buildButton(String buttonText, Color color, Color textColor, {IconData? icon}) {
+  Widget _buildButton(
+    String buttonText,
+    Color color,
+    Color textColor, {
+    IconData? icon,
+  }) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.all(6.0),
         child: LayoutBuilder(
           builder: (context, constraints) {
             return SizedBox(
-              height: constraints.maxWidth, // Memastikan bentuk lingkaran sempurna
+              height:
+                  constraints.maxWidth, // Memastikan bentuk lingkaran sempurna
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: color,
                   foregroundColor: textColor,
                   shape: const CircleBorder(),
-                  padding: EdgeInsets.zero, // Hapus padding default agar teks muat
+                  padding:
+                      EdgeInsets.zero, // Hapus padding default agar teks muat
                 ),
                 onPressed: () => _buttonPressed(buttonText),
-                child: icon != null 
+                child: icon != null
                     ? Icon(icon, size: 28, color: textColor)
                     : Text(
                         buttonText,
                         style: TextStyle(
-                          fontSize: buttonText.length > 1 ? 22.0 : 28.0, // Perkecil font jika teks panjang
+                          fontSize: buttonText.length > 1
+                              ? 22.0
+                              : 28.0, // Perkecil font jika teks panjang
                           fontWeight: FontWeight.w500,
                           color: textColor,
                         ),
@@ -125,23 +182,116 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                       ),
               ),
             );
-          }
+          },
         ),
       ),
+    );
+  }
+
+  void _showHistoryBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          height: MediaQuery.of(context).size.height * 0.5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: const Text(
+                      'Riwayat',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () {
+                      setState(() {
+                        _globalCalculationHistory.clear();
+                      });
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: AppConstants.errorColor,
+                      size: 20,
+                    ),
+                    label: Text(
+                      'Hapus',
+                      style: TextStyle(color: AppConstants.errorColor),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                  ),
+                ],
+              ),
+              const Divider(),
+              Expanded(
+                child: _globalCalculationHistory.isEmpty
+                    ? const Center(
+                        child: Text('Belum ada riwayat perhitungan.'),
+                      )
+                    : ListView.builder(
+                        itemCount: _globalCalculationHistory.length,
+                        itemBuilder: (context, index) {
+                          final historyItem = _globalCalculationHistory[index];
+                          final parts = historyItem.split(' = ');
+                          return ListTile(
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 4,
+                            ),
+                            title: Text(
+                              parts.length > 1 ? parts[0] : historyItem,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ),
+                            subtitle: Text(
+                              parts.length > 1 ? '= ${parts[1]}' : '',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final bool isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Warna untuk menyesuaikan dengan tema FinanceTracker
     final Color operatorColor = AppConstants.primaryColor;
     final Color topRowColor = isDark ? Colors.grey[700]! : Colors.grey[300]!;
     final Color numberColor = isDark ? Colors.grey[850]! : Colors.grey[100]!;
     final Color textColor = isDark ? Colors.white : Colors.black;
     final Color topRowTextColor = isDark ? Colors.white : Colors.black87;
-    
+
     return Scaffold(
       backgroundColor: isDark ? Colors.black : Colors.white,
       appBar: AppBar(
@@ -156,6 +306,13 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
           style: TextStyle(color: textColor, fontWeight: FontWeight.w600),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.history, color: textColor),
+            tooltip: 'Riwayat',
+            onPressed: () => _showHistoryBottomSheet(context),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
@@ -164,43 +321,65 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               child: Container(
                 padding: const EdgeInsets.all(24.0),
                 alignment: Alignment.bottomRight,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (_history.isNotEmpty)
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        reverse: true,
-                        child: Text(
-                          _history,
-                          style: TextStyle(
-                            fontSize: 24.0,
-                            fontWeight: FontWeight.w400,
-                            color: textColor.withOpacity(0.5),
+                child: SingleChildScrollView(
+                  reverse: true, // Mencegah bottom overflow secara vertikal
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (_history.isNotEmpty)
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          reverse: true,
+                          child: Text(
+                            _history,
+                            style: TextStyle(
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.w400,
+                              color: textColor.withOpacity(0.5),
+                            ),
                           ),
                         ),
+                      const SizedBox(height: 8),
+                      Builder(
+                        builder: (context) {
+                          final formattedText = _formatEquation(_equation);
+                          final textLen = formattedText.length;
+                          
+                          // Ukuran mengecil lebih agresif agar tidak cepat scroll
+                          double currentFontSize = 56.0;
+                          if (textLen > 7) currentFontSize = 46.0;
+                          if (textLen > 10) currentFontSize = 38.0;
+                          if (textLen > 13) currentFontSize = 32.0;
+                          if (textLen > 16) currentFontSize = 26.0;
+                          
+                          return SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            reverse: true,
+                            child: Text(
+                              formattedText,
+                              style: TextStyle(
+                                fontSize: currentFontSize,
+                                fontWeight: FontWeight.w300,
+                                color: textColor,
+                              ),
+                            ),
+                          );
+                        }
                       ),
-                    const SizedBox(height: 8),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      reverse: true,
-                      child: Text(
-                        _formatEquation(_equation),
-                        style: TextStyle(
-                          fontSize: 64.0,
-                          fontWeight: FontWeight.w300,
-                          color: textColor,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
             const Divider(height: 1),
             Container(
-              padding: const EdgeInsets.only(bottom: 20.0, top: 10.0, left: 10.0, right: 10.0),
+              padding: const EdgeInsets.only(
+                bottom: 20.0,
+                top: 10.0,
+                left: 10.0,
+                right: 10.0,
+              ),
               child: Column(
                 children: <Widget>[
                   Row(
@@ -237,7 +416,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                   ),
                   Row(
                     children: <Widget>[
-                      _buildButton("⌫", numberColor, textColor, icon: Icons.backspace_outlined),
+                      _buildButton(
+                        "⌫",
+                        numberColor,
+                        textColor,
+                        icon: Icons.backspace_outlined,
+                      ),
                       _buildButton("0", numberColor, textColor),
                       _buildButton(",", numberColor, textColor),
                       _buildButton("=", operatorColor, Colors.white),

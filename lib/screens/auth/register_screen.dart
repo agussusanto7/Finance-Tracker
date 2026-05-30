@@ -86,18 +86,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Logo
                         Image.asset(
                           'assets/images/launcher.png',
-                          width: size.width * 0.25,
+                          width: size.width * 0.15,
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
                           'Finance Tracker',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: AppConstants.primaryColor,
                           ),
                         ),
-                        const SizedBox(height: 48),
+                        SizedBox(height: size.height * 0.02),
                         
                         Text(
                           'Buat Akun Baru',
@@ -106,14 +106,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             color: cs.onSurface,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 4),
                         Text(
                           'Lengkapi data di bawah untuk mendaftar',
                           style: textTheme.bodyMedium?.copyWith(
                             color: cs.onSurface.withOpacity(0.7),
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        SizedBox(height: size.height * 0.02),
                         
                         // Name Field
                         TextFormField(
@@ -129,7 +129,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         
                         // Email Field
                         TextFormField(
@@ -146,7 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         
                         // Password Field
                         TextFormField(
@@ -167,7 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 12),
                         
                         // Confirm Password Field
                         TextFormField(
@@ -187,15 +187,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 32),
+                        SizedBox(height: size.height * 0.02),
                         
                         // Tombol Daftar
                         SizedBox(
                           width: double.infinity,
-                          height: 50,
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _register,
                             style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               backgroundColor: AppConstants.primaryColor,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

@@ -7,14 +7,22 @@ import '../settings/settings_screen.dart';
 import '../calculator/calculator_screen.dart'; // Import halaman kalkulator
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final int initialIndex;
+  
+  const MainScreen({super.key, this.initialIndex = 0});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
 
   final List<Widget> _screens = [
     const DashboardScreen(),
@@ -294,7 +302,7 @@ class _MainScreenState extends State<MainScreen> {
             children: [
               Expanded(child: _buildNavItem(context, Icons.home_rounded, 'Beranda', 0)),
               Expanded(child: _buildNavItem(context, Icons.receipt_long_rounded, 'Transaksi', 1)),
-              const SizedBox(width: 56), // Placeholder for FAB
+              const SizedBox(width: 72), // Increased Placeholder for FAB
               Expanded(child: _buildNavItem(context, Icons.pie_chart_rounded, 'Statistik', 2)),
               Expanded(child: _buildNavItem(context, Icons.settings_rounded, 'Pengaturan', 3)),
             ],
