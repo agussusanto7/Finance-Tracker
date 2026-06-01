@@ -7,22 +7,34 @@ Aplikasi manajemen keuangan pribadi yang dikembangkan dengan **Flutter**, dileng
 ## 📸 Gallery Screenshots
 
 <div align="center">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.06.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.07.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.07%20(1).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.07%20(2).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot%202026-06-01%20160549.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.16.44.062.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.16.50.945.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.16.53.995.png" width="24%" style="border-radius: 10px; margin: 5px;">
 </div>
 <div align="center">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.08.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.08%20(1).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.08%20(2).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.09.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.17.02.129.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.17.48.920.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.17.57.529.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.18.02.712.png" width="24%" style="border-radius: 10px; margin: 5px;">
 </div>
 <div align="center">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.09%20(1).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.21.43.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.10.jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
-  <img src="assets/dashboard/WhatsApp%20Image%202026-05-30%20at%2014.12.10%20(1).jpeg" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.18.06.504.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.18.13.683.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.18.17.808.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.18.22.141.png" width="24%" style="border-radius: 10px; margin: 5px;">
+</div>
+<div align="center">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.18.29.083.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.18.41.362.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.19.09.391.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.19.16.512.png" width="24%" style="border-radius: 10px; margin: 5px;">
+</div>
+<div align="center">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.21.42.912.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.21.48.499.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.21.55.266.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.22.12.437.png" width="24%" style="border-radius: 10px; margin: 5px;">
 </div>
 
 ---

@@ -137,40 +137,79 @@ class _ChatScreenState extends State<ChatScreen> {
   String _buildFinancialContext() {
     final provider = Provider.of<TransactionProvider>(context, listen: false);
     final transactions = provider.transactions;
+    final now = DateTime.now();
 
     double totalIncome = 0;
     double totalExpense = 0;
+    double currentMonthIncome = 0;
+    double currentMonthExpense = 0;
+    
+    // Untuk ringkasan per bulan
+    Map<String, Map<String, double>> monthlySummary = {};
 
     for (var tx in transactions) {
+      // Total keseluruhan
       if (tx.type == TransactionType.income) {
         totalIncome += tx.amount;
       } else {
         totalExpense += tx.amount;
+      }
+      
+      // Bulan ini
+      if (tx.date.year == now.year && tx.date.month == now.month) {
+        if (tx.type == TransactionType.income) {
+          currentMonthIncome += tx.amount;
+        } else {
+          currentMonthExpense += tx.amount;
+        }
+      }
+      
+      // Ringkasan per bulan
+      String monthKey = '${tx.date.year}-${tx.date.month.toString().padLeft(2, '0')}';
+      if (!monthlySummary.containsKey(monthKey)) {
+        monthlySummary[monthKey] = {'income': 0.0, 'expense': 0.0};
+      }
+      if (tx.type == TransactionType.income) {
+        monthlySummary[monthKey]!['income'] = monthlySummary[monthKey]!['income']! + tx.amount;
+      } else {
+        monthlySummary[monthKey]!['expense'] = monthlySummary[monthKey]!['expense']! + tx.amount;
       }
     }
 
     final balance = CurrencyFormatter.formatCurrency(provider.totalBalance);
     final income = CurrencyFormatter.formatCurrency(totalIncome);
     final expense = CurrencyFormatter.formatCurrency(totalExpense);
+    final monthIncome = CurrencyFormatter.formatCurrency(currentMonthIncome);
+    final monthExpense = CurrencyFormatter.formatCurrency(currentMonthExpense);
 
     String contextStr =
         "KONTEKS DATA KEUANGAN PENGGUNA SAAT INI (JANGAN SEBUTKAN INI KE PENGGUNA SECARA EKSPLISIT, GUNAKAN SEBAGAI PENGETAHUAN):\n";
-    contextStr += "- Saldo Saat Ini: $balance\n";
-    contextStr += "- Total Pemasukan: $income\n";
-    contextStr += "- Total Pengeluaran: $expense\n";
+    contextStr += "- Waktu Saat Ini: ${now.toString()}\n";
+    contextStr += "- Saldo Saat Ini (Total): $balance\n";
+    contextStr += "- Pemasukan Bulan Ini: $monthIncome\n";
+    contextStr += "- Pengeluaran Bulan Ini: $monthExpense\n";
+    contextStr += "- Total Keseluruhan Pemasukan: $income\n";
+    contextStr += "- Total Keseluruhan Pengeluaran: $expense\n";
     contextStr += "- Total Riwayat Transaksi: ${transactions.length}\n";
 
+    if (monthlySummary.isNotEmpty) {
+      contextStr += "\nRingkasan Per Bulan:\n";
+      final sortedMonths = monthlySummary.keys.toList()..sort((a, b) => b.compareTo(a));
+      for (var month in sortedMonths.take(12)) { // Batasi maksimal 12 bulan terakhir
+        final inc = CurrencyFormatter.formatCurrency(monthlySummary[month]!['income']!);
+        final exp = CurrencyFormatter.formatCurrency(monthlySummary[month]!['expense']!);
+        contextStr += "- Bulan $month: Pemasukan $inc | Pengeluaran $exp\n";
+      }
+    }
+
     if (transactions.isNotEmpty) {
-      contextStr += "\n5 Transaksi Terakhir:\n";
-      // Ambil 5 transaksi teratas (sudah diurutkan dari terbaru di provider)
-      final recentTx = transactions.take(5).toList();
+      contextStr += "\nRiwayat Detail (Maksimal 100 Transaksi Terakhir):\n";
+      final recentTx = transactions.take(100).toList();
       for (var tx in recentTx) {
-        final type = tx.type == TransactionType.income
-            ? 'Pemasukan'
-            : 'Pengeluaran';
+        final type = tx.type == TransactionType.income ? 'Pemasukan' : 'Pengeluaran';
         final amt = CurrencyFormatter.formatCurrency(tx.amount);
-        contextStr +=
-            "- [${tx.date.toString().substring(0, 10)}] ${tx.category} ($type): $amt\n";
+        final note = (tx.note?.isNotEmpty ?? false) ? ' (Catatan: ${tx.note})' : '';
+        contextStr += "- [${tx.date.toString().substring(0, 10)}] ${tx.category} ($type): $amt$note\n";
       }
     }
 

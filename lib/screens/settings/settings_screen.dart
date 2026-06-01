@@ -476,8 +476,7 @@ class SettingsScreen extends StatelessWidget {
               userProvider.logout();
               
               if (context.mounted) {
-                Navigator.pop(context); // Tutup dialog
-                Navigator.pushReplacementNamed(context, '/splash');
+                Navigator.of(context, rootNavigator: true).pushNamedAndRemoveUntil('/splash', (route) => false);
               }
             },
             style: ElevatedButton.styleFrom(
