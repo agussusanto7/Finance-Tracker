@@ -7,7 +7,7 @@ Aplikasi manajemen keuangan pribadi yang dikembangkan dengan **Flutter**, dileng
 ## 📸 Gallery Screenshots
 
 <div align="center">
-  <img src="assets/dashboard/Screenshot%202026-06-01%20160549.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot_2026.06.01_16.22.12.437.png" width="24%" style="border-radius: 10px; margin: 5px;">
   <img src="assets/dashboard/Screenshot_2026.06.01_16.16.44.062.png" width="24%" style="border-radius: 10px; margin: 5px;">
   <img src="assets/dashboard/Screenshot_2026.06.01_16.16.50.945.png" width="24%" style="border-radius: 10px; margin: 5px;">
   <img src="assets/dashboard/Screenshot_2026.06.01_16.16.53.995.png" width="24%" style="border-radius: 10px; margin: 5px;">
@@ -34,7 +34,7 @@ Aplikasi manajemen keuangan pribadi yang dikembangkan dengan **Flutter**, dileng
   <img src="assets/dashboard/Screenshot_2026.06.01_16.21.42.912.png" width="24%" style="border-radius: 10px; margin: 5px;">
   <img src="assets/dashboard/Screenshot_2026.06.01_16.21.48.499.png" width="24%" style="border-radius: 10px; margin: 5px;">
   <img src="assets/dashboard/Screenshot_2026.06.01_16.21.55.266.png" width="24%" style="border-radius: 10px; margin: 5px;">
-  <img src="assets/dashboard/Screenshot_2026.06.01_16.22.12.437.png" width="24%" style="border-radius: 10px; margin: 5px;">
+  <img src="assets/dashboard/Screenshot%202026-06-01%20160549.png" width="24%" style="border-radius: 10px; margin: 5px;">
 </div>
 
 ---
