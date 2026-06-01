@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../constants/app_constants.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../services/firebase_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -33,6 +34,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         
         // Update nama ke profil Firebase
         await userCredential.user?.updateDisplayName(_nameController.text.trim());
+        
+        // Simpan data user ke Firestore
+        if (userCredential.user != null) {
+          await FirebaseService.instance.saveUserToFirestore(
+            userCredential.user!, 
+            _nameController.text.trim()
+          );
+        }
         
         if (mounted) {
           Navigator.pop(context); // Kembali ke login

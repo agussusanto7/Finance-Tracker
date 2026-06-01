@@ -6,6 +6,7 @@ import '../../constants/app_constants.dart';
 import 'register_screen.dart';
 import 'reset_password_screen.dart';
 import 'pin_setup_screen.dart';
+import '../../services/firebase_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -73,7 +74,14 @@ class _LoginScreenState extends State<LoginScreen> {
         idToken: googleAuth.idToken,
       );
 
-      await FirebaseAuth.instance.signInWithCredential(credential);
+      final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+      
+      if (userCredential.user != null) {
+        await FirebaseService.instance.saveUserToFirestore(
+          userCredential.user!, 
+          userCredential.user!.displayName
+        );
+      }
       
       if (mounted) {
         Navigator.pushReplacement(

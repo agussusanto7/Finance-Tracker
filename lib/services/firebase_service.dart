@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide User;
 import 'package:flutter/foundation.dart';
 import '../models/transaction_model.dart';
 
@@ -29,6 +29,21 @@ class FirebaseService {
     final uid = currentUserId;
     if (uid == null) return null;
     return _firestore.collection('users').doc(uid).collection('budgets');
+  }
+
+  // ==== USER METHODS ====
+
+  Future<void> saveUserToFirestore(User firebaseUser, String? name) async {
+    try {
+      await _firestore.collection('users').doc(firebaseUser.uid).set({
+        'email': firebaseUser.email,
+        'name': name ?? firebaseUser.displayName ?? '',
+        'photoUrl': firebaseUser.photoURL ?? '',
+        'lastLogin': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('Error saving user to Firestore: $e');
+    }
   }
 
   // ==== TRANSACTION METHODS ====
@@ -141,7 +156,7 @@ class FirebaseService {
     if (collection == null) return [];
 
     final snapshot = await collection.get();
-    return snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+    return snapshot.docs.map((doc) => doc.data()).toList();
   }
 
   // ==== STORAGE METHODS (Menggunakan Supabase Storage) ====

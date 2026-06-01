@@ -45,6 +45,9 @@ class UserProvider with ChangeNotifier {
           _user = _user!.copyWith(name: newName, photoPath: newPhoto);
           await DatabaseHelper.instance.updateUser(_user!);
         }
+        
+        // Update user document di Firestore agar email/name muncul di Console
+        await FirebaseService.instance.saveUserToFirestore(firebaseUser, _user!.name);
       }
       
       _isLoading = false;

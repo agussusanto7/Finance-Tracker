@@ -24,30 +24,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    // Latar belakang sedikit diperhalus agar kontras dengan kartu lebih baik
     final bgColor = cs.surface == const Color(0xFF1E1E2E)
         ? const Color(0xFF121218)
-        : const Color(0xFFF4F5F9);
+        : const Color(0xFFF8F9FA); 
 
     return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: bgColor,
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(), // Animasi scroll lebih modern
         slivers: [
           _buildAppBar(context),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20), // Padding dioptimalkan
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildBalanceCard(context),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   _buildQuickActions(context),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   _buildConsultationBanner(context),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   _buildMonthlyChart(context),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                   _buildRecentTransactions(context),
+                  const SizedBox(height: 20), // Ekstra padding bawah
                 ],
               ),
             ),
@@ -66,10 +69,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       builder: (context, userProvider, child) {
         final user = userProvider.user;
         final userName = user?.name ?? 'Pengguna';
-        // Ambil nama depan saja agar tidak terlalu panjang
         final firstName = userName.split(' ').first;
         
-        // Logika untuk foto profil
         final hasPhoto = user?.photoPath != null && user!.photoPath!.isNotEmpty;
         final isNetworkPhoto = hasPhoto && user!.photoPath!.startsWith('http');
         final photoFile = hasPhoto && !isNetworkPhoto ? File(user!.photoPath!) : null;
@@ -82,13 +83,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
         }
         
         return SliverAppBar(
-          toolbarHeight: 70, // Tinggi yang lebih padat dan pas
+          toolbarHeight: 75, 
           floating: true,
           pinned: true,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.95), // Efek semi transparan
           elevation: 0,
-          centerTitle: false, // Menjamin teks sejajar ke kiri
-          titleSpacing: 20,
+          centerTitle: false,
+          titleSpacing: 24,
           title: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -97,26 +98,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 'Hai, $firstName! 👋',
                 style: TextStyle(
                   color: cs.onSurface.withOpacity(0.6),
-                  fontSize: isSmallScreen ? 12 : 14,
-                  fontWeight: FontWeight.w500,
+                  fontSize: isSmallScreen ? 13 : 15,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.2,
                 ),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 4),
               Text(
                 'FinanceTracker',
                 style: TextStyle(
                   color: cs.onSurface,
-                  fontSize: isSmallScreen ? 20 : 22,
-                  fontWeight: FontWeight.bold,
+                  fontSize: isSmallScreen ? 20 : 24,
+                  fontWeight: FontWeight.w800,
                   letterSpacing: -0.5,
                 ),
               ),
             ],
           ),
           actions: [
-            // Avatar profil yang bisa di-klik untuk pindah ke Pengaturan (Index 3)
             Padding(
-              padding: const EdgeInsets.only(right: 20.0),
+              padding: const EdgeInsets.only(right: 24.0),
               child: GestureDetector(
                 onTap: () {
                   Navigator.pushAndRemoveUntil(
@@ -127,20 +128,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     (route) => false,
                   );
                 },
-                child: CircleAvatar(
-                  radius: 20,
-                  backgroundColor: AppConstants.primaryColor.withOpacity(0.15),
-                  backgroundImage: getProfileImage(),
-                  child: !photoExists
-                      ? Text(
-                          firstName.isNotEmpty ? firstName[0].toUpperCase() : 'P',
-                          style: TextStyle(
-                            color: AppConstants.primaryColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
-                        )
-                      : null,
+                child: Hero(
+                  tag: 'profile_avatar', // Transisi modern jika berpindah halaman
+                  child: Container(
+                    padding: const EdgeInsets.all(2), // Border ring
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppConstants.primaryColor.withOpacity(0.3),
+                        width: 2,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: AppConstants.primaryColor.withOpacity(0.15),
+                      backgroundImage: getProfileImage(),
+                      child: !photoExists
+                          ? Text(
+                              firstName.isNotEmpty ? firstName[0].toUpperCase() : 'P',
+                              style: TextStyle(
+                                color: AppConstants.primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            )
+                          : null,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -158,7 +172,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -168,12 +182,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 AppConstants.gradientEnd,
               ],
             ),
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(28), // Lebih membulat
             boxShadow: [
               BoxShadow(
-                color: AppConstants.primaryColor.withOpacity(0.4),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+                color: AppConstants.primaryColor.withOpacity(0.35),
+                blurRadius: 24,
+                spreadRadius: 2,
+                offset: const Offset(0, 12), // Shadow lebih "melayang"
               ),
             ],
           ),
@@ -190,11 +205,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         Text(
                           'Total Saldo',
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.8),
-                            fontSize: 12,
+                            color: Colors.white.withOpacity(0.85),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 8),
                         FittedBox(
                           fit: BoxFit.scaleDown,
                           alignment: Alignment.centerLeft,
@@ -205,37 +221,53 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     transactionProvider.totalBalance),
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: MediaQuery.of(context).size.width < 360 ? 24 : 32,
-                              fontWeight: FontWeight.bold,
+                              fontSize: MediaQuery.of(context).size.width < 360 ? 28 : 36,
+                              fontWeight: FontWeight.w800, // Lebih tebal
+                              letterSpacing: -0.5,
                             ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  IconButton(
-                    onPressed: () {
-                      userProvider.toggleBalanceHidden();
-                    },
-                    icon: Icon(
-                      balanceHidden ? Icons.visibility_off : Icons.visibility,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.2),
-                      padding: const EdgeInsets.all(10),
+                  const SizedBox(width: 12),
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () {
+                        userProvider.toggleBalanceHidden();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 1,
+                          ), // Sentuhan Glassmorphism
+                        ),
+                        child: Icon(
+                          balanceHidden ? Icons.visibility_off : Icons.visibility,
+                          color: Colors.white,
+                          size: 22,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 28),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(16),
+                  color: Colors.white.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.15),
+                    width: 1,
+                  ), // Sentuhan Glassmorphism bagian dalam
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -251,7 +283,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Container(
                       width: 1,
                       height: 40,
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withOpacity(0.25),
                     ),
                     _buildBalanceItem(
                       icon: Icons.arrow_upward_rounded,
@@ -284,16 +316,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
         final amount = snapshot.data ?? 0.0;
         return Expanded(
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(10),
+                  color: color,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.4),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                child: Icon(icon, color: Colors.white, size: 14),
+                child: Icon(icon, color: Colors.white, size: 16),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,13 +346,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Text(
                           label,
                           style: TextStyle(
-                            color: Colors.white.withOpacity(0.7),
-                            fontSize: 11,
+                            color: Colors.white.withOpacity(0.8),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 4),
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
@@ -320,7 +361,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         balanceHidden ? '• • •' : CurrencyFormatter.formatCompact(amount),
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: MediaQuery.of(context).size.width < 360 ? 14 : 18,
+                          fontSize: MediaQuery.of(context).size.width < 360 ? 15 : 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -341,30 +382,34 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final textPrimary = cs.onSurface;
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       decoration: BoxDecoration(
         color: cardBg,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withOpacity(0.04), // Shadow sangat halus
+            blurRadius: 20,
+            spreadRadius: 2,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Aksi Cepat',
-            style: TextStyle(
-              fontSize: MediaQuery.of(context).size.width < 360 ? 16 : 18,
-              fontWeight: FontWeight.bold,
-              color: textPrimary,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              'Aksi Cepat',
+              style: TextStyle(
+                fontSize: MediaQuery.of(context).size.width < 360 ? 16 : 18,
+                fontWeight: FontWeight.w800,
+                color: textPrimary,
+              ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -433,38 +478,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required VoidCallback onTap,
   }) {
     final textPrimary = Theme.of(context).colorScheme.onSurface;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width < 360 ? 56 : 64,
-              height: MediaQuery.of(context).size.width < 360 ? 56 : 64,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(16),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        highlightColor: color.withOpacity(0.1),
+        splashColor: color.withOpacity(0.2),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Column(
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width < 360 ? 56 : 64,
+                height: MediaQuery.of(context).size.width < 360 ? 56 : 64,
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.12), // Background warna lebih soft
+                  borderRadius: BorderRadius.circular(20), // Ikon membulat kekinian
+                ),
+                child: Icon(icon, color: color, size: MediaQuery.of(context).size.width < 360 ? 28 : 32),
               ),
-              child: Icon(icon, color: color, size: MediaQuery.of(context).size.width < 360 ? 28 : 32),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: double.infinity,
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: MediaQuery.of(context).size.width < 360 ? 12 : 14,
-                    fontWeight: FontWeight.w500,
-                    color: textPrimary,
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: MediaQuery.of(context).size.width < 360 ? 12 : 14,
+                      fontWeight: FontWeight.w600,
+                      color: textPrimary,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -474,21 +524,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final cs = Theme.of(context).colorScheme;
     final cardBg = cs.surface;
     final textPrimary = cs.onSurface;
-    final textSecondary = cs.onSurface.withOpacity(0.55);
-    final divider = cs.onSurface.withOpacity(0.12);
+    final divider = cs.onSurface.withOpacity(0.08);
 
     return Consumer<TransactionProvider>(
       builder: (context, provider, child) {
         return Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: cardBg,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 20,
+                spreadRadius: 2,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
@@ -502,13 +552,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     'Ringkasan Bulan Ini',
                     style: TextStyle(
                       fontSize: MediaQuery.of(context).size.width < 360 ? 16 : 18,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w800,
                       color: textPrimary,
                     ),
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
+                      horizontal: 14,
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
@@ -520,13 +570,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       style: TextStyle(
                         color: AppConstants.primaryColor,
                         fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 28),
               SizedBox(
                 height: MediaQuery.of(context).size.width < 360 ? 140 : 160,
                 child: FutureBuilder<List<double>>(
@@ -560,23 +610,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           PieChartSectionData(
                                             value: income,
                                             color: AppConstants.successColor,
-                                            radius: 25,
+                                            radius: 28, // Radius disesuaikan
                                             showTitle: false,
                                           ),
                                         if (expense > 0)
                                           PieChartSectionData(
                                             value: expense,
                                             color: AppConstants.errorColor,
-                                            radius: 25,
+                                            radius: 28, // Radius disesuaikan
                                             showTitle: false,
                                           ),
                                       ],
-                                sectionsSpace: 0,
-                                centerSpaceRadius: 20,
+                                sectionsSpace: 2, // Tambah ruang antar bagian chart
+                                centerSpaceRadius: 28,
                               ),
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: 16),
                           Expanded(
                             flex: 3,
                             child: Column(
@@ -619,7 +669,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ],
                       );
                     }
-                    return const Center(child: CircularProgressIndicator(strokeWidth: 2));
+                    return Center(child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      color: AppConstants.primaryColor,
+                    ));
                   },
                 ),
               ),
@@ -644,14 +697,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Row(
       children: [
         Container(
-          width: 10,
-          height: 10,
+          width: 12,
+          height: 12,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(3),
+            shape: BoxShape.circle, // Dot legend dibuat bulat
           ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -664,8 +717,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Text(
                     label,
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 11,
                       color: textSecondary,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -674,15 +728,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   percentage,
                   style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
                     color: color,
                   ),
                 ),
             ],
           ),
         ),
-        const SizedBox(width: 4),
+        const SizedBox(width: 8),
         Flexible(
           child: FittedBox(
             fit: BoxFit.scaleDown,
@@ -691,7 +745,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               value,
               style: TextStyle(
                 fontSize: MediaQuery.of(context).size.width < 360 ? 12 : 14,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w800,
                 color: textPrimary,
               ),
             ),
@@ -706,20 +760,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final cardBg = cs.surface;
     final textPrimary = cs.onSurface;
     final textSecondary = cs.onSurface.withOpacity(0.55);
-    final divider = cs.onSurface.withOpacity(0.12);
 
     return Consumer<TransactionProvider>(
       builder: (context, provider, child) {
         return Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: cardBg,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 20,
+                spreadRadius: 2,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
@@ -737,7 +791,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         'Transaksi Terbaru',
                         style: TextStyle(
                           fontSize: MediaQuery.of(context).size.width < 360 ? 16 : 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w800,
                           color: textPrimary,
                         ),
                       ),
@@ -748,13 +802,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MainScreen(initialIndex: 1),
+                          builder: (context) => const MainScreen(initialIndex: 1),
                         ),
                         (route) => false,
                       );
                     },
                     style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      backgroundColor: AppConstants.primaryColor.withOpacity(0.05), // Sedikit latar belakang pada tombol
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                       minimumSize: Size.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
@@ -763,21 +819,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       style: TextStyle(
                         color: AppConstants.primaryColor,
                         fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 16),
               FutureBuilder<List<TransactionModel>>(
                 future: provider.getRecentTransactions(5),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(
+                    return Center(
                       child: Padding(
-                        padding: EdgeInsets.all(20),
-                        child: CircularProgressIndicator(),
+                        padding: const EdgeInsets.all(20),
+                        child: CircularProgressIndicator(color: AppConstants.primaryColor),
                       ),
                     );
                   }
@@ -789,17 +845,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.receipt_long_outlined,
-                            size: 48,
-                            color: textSecondary.withOpacity(0.5),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: textSecondary.withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.receipt_long_outlined,
+                              size: 40,
+                              color: textSecondary.withOpacity(0.7),
+                            ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 16),
                           Text(
                             'Belum ada transaksi',
                             style: TextStyle(
                               color: textSecondary,
                               fontSize: 14,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
@@ -824,9 +888,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: transactions.length,
-                    separatorBuilder: (context, index) => Divider(
-                      color: divider,
-                      height: 1,
+                    separatorBuilder: (context, index) => Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Divider(
+                        color: cs.onSurface.withOpacity(0.06),
+                        height: 1,
+                      ),
                     ),
                     itemBuilder: (context, index) {
                       final transaction = transactions[index];
@@ -857,14 +924,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Row(
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 50,
+            height: 50,
             decoration: BoxDecoration(
               color: (isExpense
                       ? AppConstants.errorColor
                       : AppConstants.successColor)
-                  .withOpacity(0.1),
-              borderRadius: BorderRadius.circular(14),
+                  .withOpacity(0.12), // Background warna lebih solid tipis
+              borderRadius: BorderRadius.circular(16), // Rounded modern
             ),
             child: Icon(
               isExpense
@@ -876,7 +943,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               size: 24,
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -884,18 +951,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Text(
                   category,
                   style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
                     color: textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   DateFormatter.formatRelativeDate(date),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                     color: textSecondary,
                   ),
                 ),
@@ -910,8 +978,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Text(
                 '${isExpense ? '-' : '+'}${CurrencyFormatter.formatCurrency(amount)}',
                 style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800, // Teks nominal dipertegas
                   color: isExpense
                       ? AppConstants.errorColor
                       : AppConstants.successColor,
@@ -925,74 +993,108 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildConsultationBanner(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const ChatScreen()),
-        );
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: const Color(0xFF4DB0E6), // Biru cerah sesuai referensi
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            // Ilustrasi puzzle dan orang
-            Image.asset(
-              'assets/images/konsultasi.png',
-              width: 110,
-              height: 110,
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(width: 16),
-            // Konten Teks & Tombol
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Ingin Konsultasi?',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E1E1E), // Teks gelap
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Bingung dengan Keuangan kamu sekarang? Konsultasi aja!',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Color(0xFF333333),
-                      height: 1.3,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2A2A2A), // Tombol gelap
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'Konsultasi',
-                      style: TextStyle(
-                        color: Color(0xFF4DB0E6), // Teks tombol berwarna biru cerah
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ),
-                ],
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(24), // Melengkung lebih bagus
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4DB0E6).withOpacity(0.3), // Cahaya kebiruan (Glow Effect)
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ChatScreen()),
+            );
+          },
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              // Gradient Biru yang cerah dan modern
+              gradient: const LinearGradient(
+                colors: [Color(0xFF4DB0E6), Color(0xFF3291C6)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              borderRadius: BorderRadius.circular(24),
             ),
-          ],
+            child: Row(
+              children: [
+                // Ilustrasi puzzle dan orang
+                Hero( // Sedikit efek hero untuk aset gambar jika ada di screen selanjutnya
+                  tag: 'consultation_image',
+                  child: Image.asset(
+                    'assets/images/konsultasi.png',
+                    width: MediaQuery.of(context).size.width < 360 ? 90 : 110,
+                    height: MediaQuery.of(context).size.width < 360 ? 90 : 110,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Konten Teks & Tombol
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text(
+                        'Ingin Konsultasi?',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white, // Diubah menjadi putih agar lebih menyatu dengan gradient
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Bingung dengan keuangan kamu sekarang? Konsultasi aja!',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withOpacity(0.9), // Sedikit transparan untuk hierarki visual
+                          height: 1.4,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E1E2E), // Tombol gelap modern
+                          borderRadius: BorderRadius.circular(14), // Rounded button
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.15),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Text(
+                          'Konsultasi',
+                          style: TextStyle(
+                            color: Color(0xFF4DB0E6), // Teks tombol tetap warna tema
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
-}
+} 

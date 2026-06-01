@@ -5,6 +5,8 @@ import '../../constants/app_constants.dart';
 import '../../constants/app_theme.dart';
 import '../../providers/user_provider.dart';
 import '../home/main_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class PinScreen extends StatefulWidget {
   const PinScreen({super.key});
@@ -94,6 +96,44 @@ class _PinScreenState extends State<PinScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _handleForgotPin() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Lupa PIN?'),
+        content: const Text(
+          'Untuk mereset PIN, Anda harus keluar dari aplikasi dan masuk kembali. '
+          'Setelah masuk, Anda akan diminta untuk membuat PIN baru.\n\n'
+          'Apakah Anda ingin keluar sekarang?'
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppConstants.errorColor,
+            ),
+            child: const Text('Keluar Akun'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      // Hapus sesi
+      await FirebaseAuth.instance.signOut();
+      await GoogleSignIn().signOut();
+      
+      if (mounted) {
+        Provider.of<UserProvider>(context, listen: false).logout();
+        Navigator.of(context).pushNamedAndRemoveUntil('/splash', (route) => false);
+      }
+    }
   }
 
   @override
@@ -217,7 +257,23 @@ class _PinScreenState extends State<PinScreen> {
                                   ),
                                 ),
                               
-                              SizedBox(height: topPadding),
+                              SizedBox(height: topPadding / 2),
+                              
+                              // Lupa PIN Button
+                              TextButton(
+                                onPressed: _handleForgotPin,
+                                child: Text(
+                                  'Lupa PIN?',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: subtitleFontSize,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: Colors.white70,
+                                  ),
+                                ),
+                              ),
+                              
+                              SizedBox(height: topPadding / 2),
                             ],
                           ),
                         ),
