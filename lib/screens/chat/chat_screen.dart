@@ -7,6 +7,7 @@ import '../../providers/transaction_provider.dart';
 import '../../models/transaction_model.dart';
 import '../../utils/currency_formatter.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'audio_dialog.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -46,7 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _initGemini() {
     // Inisialisasi model Gemini 2.5 Flash
     _model = GenerativeModel(
-      model: 'gemini-2.5-flash-lite',
+      model: 'gemini-3.1-flash-lite',
       apiKey: _apiKey,
       systemInstruction: Content.system(
         'Kamu adalah asisten keuangan pribadi yang profesional, ramah, dan solutif. Tugasmu adalah membantu pengguna memberikan saran pengelolaan keuangan, tips berhemat, dan menjawab pertanyaan terkait keuangan pribadi dengan bahasa Indonesia yang mudah dipahami.',
@@ -143,7 +144,7 @@ class _ChatScreenState extends State<ChatScreen> {
     double totalExpense = 0;
     double currentMonthIncome = 0;
     double currentMonthExpense = 0;
-    
+
     // Untuk ringkasan per bulan
     Map<String, Map<String, double>> monthlySummary = {};
 
@@ -154,7 +155,7 @@ class _ChatScreenState extends State<ChatScreen> {
       } else {
         totalExpense += tx.amount;
       }
-      
+
       // Bulan ini
       if (tx.date.year == now.year && tx.date.month == now.month) {
         if (tx.type == TransactionType.income) {
@@ -163,16 +164,19 @@ class _ChatScreenState extends State<ChatScreen> {
           currentMonthExpense += tx.amount;
         }
       }
-      
+
       // Ringkasan per bulan
-      String monthKey = '${tx.date.year}-${tx.date.month.toString().padLeft(2, '0')}';
+      String monthKey =
+          '${tx.date.year}-${tx.date.month.toString().padLeft(2, '0')}';
       if (!monthlySummary.containsKey(monthKey)) {
         monthlySummary[monthKey] = {'income': 0.0, 'expense': 0.0};
       }
       if (tx.type == TransactionType.income) {
-        monthlySummary[monthKey]!['income'] = monthlySummary[monthKey]!['income']! + tx.amount;
+        monthlySummary[monthKey]!['income'] =
+            monthlySummary[monthKey]!['income']! + tx.amount;
       } else {
-        monthlySummary[monthKey]!['expense'] = monthlySummary[monthKey]!['expense']! + tx.amount;
+        monthlySummary[monthKey]!['expense'] =
+            monthlySummary[monthKey]!['expense']! + tx.amount;
       }
     }
 
@@ -194,10 +198,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (monthlySummary.isNotEmpty) {
       contextStr += "\nRingkasan Per Bulan:\n";
-      final sortedMonths = monthlySummary.keys.toList()..sort((a, b) => b.compareTo(a));
-      for (var month in sortedMonths.take(12)) { // Batasi maksimal 12 bulan terakhir
-        final inc = CurrencyFormatter.formatCurrency(monthlySummary[month]!['income']!);
-        final exp = CurrencyFormatter.formatCurrency(monthlySummary[month]!['expense']!);
+      final sortedMonths = monthlySummary.keys.toList()
+        ..sort((a, b) => b.compareTo(a));
+      for (var month in sortedMonths.take(12)) {
+        // Batasi maksimal 12 bulan terakhir
+        final inc = CurrencyFormatter.formatCurrency(
+          monthlySummary[month]!['income']!,
+        );
+        final exp = CurrencyFormatter.formatCurrency(
+          monthlySummary[month]!['expense']!,
+        );
         contextStr += "- Bulan $month: Pemasukan $inc | Pengeluaran $exp\n";
       }
     }
@@ -206,10 +216,15 @@ class _ChatScreenState extends State<ChatScreen> {
       contextStr += "\nRiwayat Detail (Maksimal 100 Transaksi Terakhir):\n";
       final recentTx = transactions.take(100).toList();
       for (var tx in recentTx) {
-        final type = tx.type == TransactionType.income ? 'Pemasukan' : 'Pengeluaran';
+        final type = tx.type == TransactionType.income
+            ? 'Pemasukan'
+            : 'Pengeluaran';
         final amt = CurrencyFormatter.formatCurrency(tx.amount);
-        final note = (tx.note?.isNotEmpty ?? false) ? ' (Catatan: ${tx.note})' : '';
-        contextStr += "- [${tx.date.toString().substring(0, 10)}] ${tx.category} ($type): $amt$note\n";
+        final note = (tx.note?.isNotEmpty ?? false)
+            ? ' (Catatan: ${tx.note})'
+            : '';
+        contextStr +=
+            "- [${tx.date.toString().substring(0, 10)}] ${tx.category} ($type): $amt$note\n";
       }
     }
 
@@ -258,6 +273,21 @@ class _ChatScreenState extends State<ChatScreen> {
           icon: Icon(Icons.arrow_back, color: textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.phone_in_talk, color: AppConstants.primaryColor),
+            tooltip: 'Mulai Konsultasi Suara',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AudioDialogScreen(),
+                ),
+              );
+            },
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: Column(
         children: [
