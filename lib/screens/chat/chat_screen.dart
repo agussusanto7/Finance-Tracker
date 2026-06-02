@@ -8,6 +8,7 @@ import '../../models/transaction_model.dart';
 import '../../utils/currency_formatter.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'audio_dialog.dart';
+import 'chat_foto.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -274,6 +275,18 @@ class _ChatScreenState extends State<ChatScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
+          IconButton(
+            icon: Icon(Icons.camera_alt, color: AppConstants.primaryColor),
+            tooltip: 'Scan Struk',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ChatFotoScreen(),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: Icon(Icons.phone_in_talk, color: AppConstants.primaryColor),
             tooltip: 'Mulai Konsultasi Suara',

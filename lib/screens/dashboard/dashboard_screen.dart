@@ -31,31 +31,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       backgroundColor: bgColor,
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(), // Animasi scroll lebih modern
-        slivers: [
-          _buildAppBar(context),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20), // Padding dioptimalkan
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildBalanceCard(context),
-                  const SizedBox(height: 24),
-                  _buildQuickActions(context),
-                  const SizedBox(height: 24),
-                  _buildConsultationBanner(context),
-                  const SizedBox(height: 24),
-                  _buildMonthlyChart(context),
-                  const SizedBox(height: 24),
-                  _buildRecentTransactions(context),
-                  const SizedBox(height: 20), // Ekstra padding bawah
-                ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Provider.of<TransactionProvider>(context, listen: false).loadTransactions();
+        },
+        color: AppConstants.primaryColor,
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()), // Agar refresh indicator jalan
+          slivers: [
+            _buildAppBar(context),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20), // Padding dioptimalkan
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildBalanceCard(context),
+                    const SizedBox(height: 24),
+                    _buildQuickActions(context),
+                    const SizedBox(height: 24),
+                    _buildConsultationBanner(context),
+                    const SizedBox(height: 24),
+                    _buildMonthlyChart(context),
+                    const SizedBox(height: 24),
+                    _buildRecentTransactions(context),
+                    const SizedBox(height: 20), // Ekstra padding bawah
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
