@@ -111,7 +111,7 @@ class _AudioDialogScreenState extends State<AudioDialogScreen>
   }
 
   // ==========================================
-  // LOGIKA MEREKAM SUARA
+  // LOGIKA MEREKAM SUARAA
   // ==========================================
   void _startListening() async {
     if (!_speechEnabled) return;
@@ -432,13 +432,15 @@ class _AudioDialogScreenState extends State<AudioDialogScreen>
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: _isLoudSpeaker 
-                            ? AppConstants.primaryColor.withOpacity(0.2) 
+                        color: _isLoudSpeaker
+                            ? AppConstants.primaryColor.withOpacity(0.2)
                             : cs.onSurface.withOpacity(0.05),
                       ),
                       child: Icon(
                         _isLoudSpeaker ? Icons.volume_up : Icons.volume_down,
-                        color: _isLoudSpeaker ? AppConstants.primaryColor : cs.onSurface.withOpacity(0.5),
+                        color: _isLoudSpeaker
+                            ? AppConstants.primaryColor
+                            : cs.onSurface.withOpacity(0.5),
                         size: 28,
                       ),
                     ),
