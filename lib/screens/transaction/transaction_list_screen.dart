@@ -7,6 +7,7 @@ import '../../providers/transaction_provider.dart';
 import '../../utils/currency_formatter.dart';
 import '../../utils/date_formatter.dart';
 import 'add_transaction_screen.dart';
+import 'transaction_filter_screen.dart';
 
 class TransactionListScreen extends StatefulWidget {
   const TransactionListScreen({super.key});
@@ -25,6 +26,18 @@ class _TransactionListScreenState extends State<TransactionListScreen> {
       appBar: AppBar(
         title: const Text('Riwayat Transaksi'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.download),
+            tooltip: 'Export Filter',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const TransactionFilterScreen(),
+                ),
+              );
+            },
+          ),
           PopupMenuButton<String>(
             onSelected: (value) {
               setState(() {
