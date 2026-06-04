@@ -260,9 +260,10 @@ Ketik: \`/login_uid UID_KAMU\`
     }
 
     const transactionData = parsedData.transaction_data;
-    const now = new Date();
+    // Sesuaikan waktu ke zona waktu Indonesia (WIB / UTC+7) karena Vercel menggunakan UTC
+    const now = new Date(new Date().getTime() + (7 * 60 * 60 * 1000));
     const pad = (n) => n.toString().padStart(2, '0');
-    const dateFormatted = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    const dateFormatted = `${now.getUTCFullYear()}-${pad(now.getUTCMonth()+1)}-${pad(now.getUTCDate())} ${pad(now.getUTCHours())}:${pad(now.getUTCMinutes())}:${pad(now.getUTCSeconds())}`;
 
     const newTxRef = userTransactionsRef.doc();
     const prefix = transactionData.type === 'pemasukan' ? 'pemasukan' : 'pengeluaran';
