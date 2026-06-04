@@ -140,7 +140,46 @@ Ketik: \`/login_uid UID_KAMU\`
       return;
     }
 
-    // 5. PESAN BIASA ATAU FOTO (PENCATATAN / CHAT AI)
+    // 5. COMMAND /export (Download Laporan Excel/CSV)
+    if (text.startsWith('/export')) {
+      const uid = await getUserSession(chatId);
+      if (!uid) {
+        await bot.sendMessage(chatId, "⚠️ Kamu belum menautkan akun! Silakan ketik: `/login_uid UID_KAMU`", { parse_mode: 'Markdown' });
+        return;
+      }
+      
+      await bot.sendMessage(chatId, "⏳ Sedang menyusun laporan Excel (CSV)...");
+      const snapshot = await db.collection('users').doc(uid).collection('transactions').orderBy('date', 'desc').get();
+      
+      if (snapshot.empty) {
+        await bot.sendMessage(chatId, "❌ Kamu belum memiliki riwayat transaksi.");
+        return;
+      }
+      
+      let csvString = "Tanggal,Tipe,Kategori,Nominal,Catatan\n";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const date = data.date || '-';
+        const type = data.type || '-';
+        const category = data.category || '-';
+        const amount = data.amount || 0;
+        const note = data.note ? data.note.replace(/,/g, ' ') : '-'; // Hapus koma agar tidak merusak format CSV
+        csvString += `${date},${type},${category},${amount},${note}\n`;
+      });
+      
+      // Tambahkan BOM agar bisa terbaca sempurna oleh Microsoft Excel
+      const buffer = Buffer.from('\uFEFF' + csvString, 'utf-8');
+      
+      await bot.sendDocument(chatId, buffer, { 
+         caption: "📄 Laporan Riwayat Transaksimu berhasil dibuat dan siap di-download!" 
+      }, { 
+         filename: `Laporan_Keuangan.csv`,
+         contentType: 'text/csv'
+      });
+      return;
+    }
+
+    // 6. PESAN BIASA ATAU FOTO (PENCATATAN / CHAT AI)
     if (text.startsWith('/')) return; // Abaikan command lain
     if (!text && !msg.photo) return;
 
