@@ -36,7 +36,7 @@ Tugasmu adalah menganalisis niat pengguna dan mengembalikan HANYA format JSON ya
 Format JSON: 
 {
   "action": "record" | "chat",
-  "reply": "Jawaban santai dan ramah jika action=chat (wajib gunakan data riwayat untuk menjawab pertanyaan dengan akurat), kosongkan jika action=record",
+  "reply": "Jawaban ramah dan informatif jika action=chat. Wajib gunakan data riwayat. Susun baris baru dan paragraf dengan rapi. Untuk teks tebal HANYA gunakan single asterisk *tebal* (JANGAN pakai double asterisk). Kosongkan jika action=record",
   "transaction_data": {
     "amount": number, 
     "type": "pemasukan" atau "pengeluaran", 
@@ -255,7 +255,13 @@ Ketik: \`/login_uid UID_KAMU\`
         }
 
         if (parsedData.action === 'chat' || !parsedData.transaction_data || !parsedData.transaction_data.amount) {
-            await bot.sendMessage(chatId, parsedData.reply || "Saya tidak menemukan data yang relevan.");
+            const replyText = parsedData.reply || "Saya tidak menemukan data yang relevan.";
+            try {
+                await bot.sendMessage(chatId, replyText, { parse_mode: 'Markdown' });
+            } catch (err) {
+                // Fallback jika format Markdown yang di-generate AI error/tidak valid
+                await bot.sendMessage(chatId, replyText);
+            }
             return;
         }
 
