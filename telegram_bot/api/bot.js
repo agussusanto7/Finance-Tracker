@@ -59,130 +59,115 @@ async function getUserSession(chatId) {
   return null;
 }
 
-// Menangani command /start
-bot.onText(/\/start/, (msg) => {
+// FUNGSI UTAMA UNTUK MENANGANI PESAN SECARA ASYNC DI VERCEL
+async function handleUpdate(body) {
+  if (!body.message) return;
+  const msg = body.message;
   const chatId = msg.chat.id;
-  const welcomeMessage = `Halo! 👋 Saya adalah Bot Finance Tracker.
-  
+  const text = msg.text || msg.caption || ''; 
+
+  try {
+    // 1. COMMAND /start
+    if (text.startsWith('/start')) {
+      const welcomeMessage = `Halo! 👋 Saya adalah Bot Finance Tracker.
+      
 Untuk memulai, silakan tautkan akun aplikasi Finance Tracker-mu.
 Ketik: \`/login_uid UID_KAMU\`
 
 *(Kamu bisa melihat UID-mu di dalam aplikasi Flutter > Profil)*`;
+      await bot.sendMessage(chatId, welcomeMessage, { parse_mode: 'Markdown' });
+      return;
+    }
 
-  bot.sendMessage(chatId, welcomeMessage, { parse_mode: 'Markdown' });
-});
+    // 2. COMMAND /login_uid
+    if (text.startsWith('/login_uid')) {
+      const parts = text.split(' ');
+      if (parts.length < 2) {
+        await bot.sendMessage(chatId, "❌ Format salah. Gunakan: `/login_uid UID_KAMU`", { parse_mode: 'Markdown' });
+        return;
+      }
+      const uid = parts[1];
+      await bot.sendMessage(chatId, "⏳ Memverifikasi UID...");
 
-// Menangani command /login_uid
-bot.onText(/\/login_uid (.+)/, async (msg, match) => {
-  const chatId = msg.chat.id;
-  const uid = match[1];
+      const userDoc = await db.collection('users').doc(uid).get();
+      if (userDoc.exists) {
+        await db.collection('telegram_sessions').doc(chatId.toString()).set({
+          uid: uid,
+          login_at: admin.firestore.FieldValue.serverTimestamp()
+        });
+        const userData = userDoc.data();
+        await bot.sendMessage(chatId, `✅ Login Berhasil!\n\nSelamat datang, *${userData.name || userData.email || 'Pengguna'}*.\nSekarang kamu bisa mencatat transaksi atau mengecek saldo langsung dari sini.`, { parse_mode: 'Markdown' });
+      } else {
+        await bot.sendMessage(chatId, "❌ UID tidak ditemukan di database. Pastikan kamu mengcopy UID yang benar dari aplikasi.");
+      }
+      return;
+    }
 
-  bot.sendMessage(chatId, "⏳ Memverifikasi UID...");
+    // 3. COMMAND /logout
+    if (text.startsWith('/logout')) {
+      await db.collection('telegram_sessions').doc(chatId.toString()).delete();
+      await bot.sendMessage(chatId, "✅ Berhasil logout dari bot Telegram.");
+      return;
+    }
 
-  try {
-    const userDoc = await db.collection('users').doc(uid).get();
-    
-    if (userDoc.exists) {
-      await db.collection('telegram_sessions').doc(chatId.toString()).set({
-        uid: uid,
-        login_at: admin.firestore.FieldValue.serverTimestamp()
+    // 4. COMMAND /saldo
+    if (text.startsWith('/saldo')) {
+      const uid = await getUserSession(chatId);
+      if (!uid) {
+        await bot.sendMessage(chatId, "⚠️ Kamu belum menautkan akun! Silakan ketik: `/login_uid UID_KAMU`", { parse_mode: 'Markdown' });
+        return;
+      }
+
+      await bot.sendMessage(chatId, "⏳ Menghitung saldo dari database...");
+      const transactionsSnapshot = await db.collection('users').doc(uid).collection('transactions').get();
+      
+      let totalIncome = 0;
+      let totalExpense = 0;
+
+      transactionsSnapshot.forEach(doc => {
+        const data = doc.data();
+        if (data.type === 'pemasukan') {
+          totalIncome += data.amount;
+        } else if (data.type === 'pengeluaran') {
+          totalExpense += data.amount;
+        }
       });
 
-      const userData = userDoc.data();
-      bot.sendMessage(chatId, `✅ Login Berhasil!\n\nSelamat datang, *${userData.name || userData.email || 'Pengguna'}*.\nSekarang kamu bisa mencatat transaksi atau mengecek saldo langsung dari sini.`, { parse_mode: 'Markdown' });
-    } else {
-      bot.sendMessage(chatId, "❌ UID tidak ditemukan di database. Pastikan kamu mengcopy UID yang benar dari aplikasi.");
+      const balance = totalIncome - totalExpense;
+      const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
+      const reply = `📊 *Ringkasan Keuanganmu:*\n\n💰 *Total Saldo:* ${formatter.format(balance)}\n\n🟢 Pemasukan: ${formatter.format(totalIncome)}\n🔴 Pengeluaran: ${formatter.format(totalExpense)}`;
+      await bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
+      return;
     }
-  } catch (error) {
-    console.error("Login Error:", error);
-    bot.sendMessage(chatId, "❌ Terjadi kesalahan sistem saat mencoba login.");
-  }
-});
 
-// Menangani command /logout
-bot.onText(/\/logout/, async (msg) => {
-  const chatId = msg.chat.id;
-  try {
-    await db.collection('telegram_sessions').doc(chatId.toString()).delete();
-    bot.sendMessage(chatId, "✅ Berhasil logout dari bot Telegram.");
-  } catch (error) {
-    bot.sendMessage(chatId, "❌ Gagal logout.");
-  }
-});
+    // 5. PESAN BIASA ATAU FOTO (PENCATATAN / CHAT AI)
+    if (text.startsWith('/')) return; // Abaikan command lain
+    if (!text && !msg.photo) return;
 
-// Menangani command /saldo
-bot.onText(/\/saldo/, async (msg) => {
-  const chatId = msg.chat.id;
-  
-  const uid = await getUserSession(chatId);
-  if (!uid) {
-    bot.sendMessage(chatId, "⚠️ Kamu belum menautkan akun! Silakan ketik: `/login_uid UID_KAMU`", { parse_mode: 'Markdown' });
-    return;
-  }
+    const uid = await getUserSession(chatId);
+    if (!uid) {
+      await bot.sendMessage(chatId, "⚠️ Kamu belum menautkan akun! Silakan ketik: `/login_uid UID_KAMU`", { parse_mode: 'Markdown' });
+      return;
+    }
 
-  bot.sendMessage(chatId, "⏳ Menghitung saldo dari database...");
+    const userTransactionsRef = db.collection('users').doc(uid).collection('transactions');
+    await bot.sendMessage(chatId, "🤖 AI sedang memproses pesan...");
 
-  try {
-    const transactionsSnapshot = await db.collection('users').doc(uid).collection('transactions').get();
-    
-    let totalIncome = 0;
-    let totalExpense = 0;
-
-    transactionsSnapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.type === 'pemasukan') {
-        totalIncome += data.amount;
-      } else if (data.type === 'pengeluaran') {
-        totalExpense += data.amount;
-      }
-    });
-
-    const balance = totalIncome - totalExpense;
-    
-    const formatter = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 });
-
-    const reply = `📊 *Ringkasan Keuanganmu:*\n\n💰 *Total Saldo:* ${formatter.format(balance)}\n\n🟢 Pemasukan: ${formatter.format(totalIncome)}\n🔴 Pengeluaran: ${formatter.format(totalExpense)}`;
-    bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
-  } catch (error) {
-    console.error("Gagal mengambil data saldo:", error);
-    bot.sendMessage(chatId, "❌ Terjadi kesalahan saat mengambil data saldo.");
-  }
-});
-
-// Menangani pesan teks biasa ATAU Foto (pencatatan otomatis dengan AI)
-bot.on('message', async (msg) => {
-  const chatId = msg.chat.id;
-  const text = msg.text || msg.caption || ''; 
-
-  if (text.startsWith('/')) return;
-  if (!text && !msg.photo) return;
-
-  const uid = await getUserSession(chatId);
-  if (!uid) {
-    bot.sendMessage(chatId, "⚠️ Kamu belum menautkan akun! Silakan ketik: `/login_uid UID_KAMU`", { parse_mode: 'Markdown' });
-    return;
-  }
-
-  const userTransactionsRef = db.collection('users').doc(uid).collection('transactions');
-  bot.sendMessage(chatId, "🤖 AI sedang memproses pesan...");
-
-  try {
     let aiResponse = "";
-    
     const snapshot = await userTransactionsRef.orderBy('date', 'desc').limit(50).get();
-    let historyContext = "RIWAYAT TRANSAKSI TERAKHIR (Gunakan ini untuk menjawab jika user bertanya):\\n";
+    let historyContext = "RIWAYAT TRANSAKSI TERAKHIR (Gunakan ini untuk menjawab jika user bertanya):\n";
     let currentIncome = 0;
     let currentExpense = 0;
     
     snapshot.forEach(doc => {
       const tx = doc.data();
-      historyContext += `- [${tx.date}] ${tx.type}: Rp${tx.amount} (${tx.category}) - ${tx.note}\\n`;
+      historyContext += `- [${tx.date}] ${tx.type}: Rp${tx.amount} (${tx.category}) - ${tx.note}\n`;
       if (tx.type === 'pemasukan') currentIncome += tx.amount;
       else currentExpense += tx.amount;
     });
     const balance = currentIncome - currentExpense;
-    historyContext += `\\nTOTAL SEMENTARA (dari 50 transaksi terakhir):\\nPemasukan: Rp${currentIncome}\\nPengeluaran: Rp${currentExpense}\\nSaldo: Rp${balance}\\n\\n`;
-    historyContext += `PESAN DARI USER:\\n${text}`;
+    historyContext += `\nTOTAL SEMENTARA (dari 50 transaksi terakhir):\nPemasukan: Rp${currentIncome}\nPengeluaran: Rp${currentExpense}\nSaldo: Rp${balance}\n\n`;
+    historyContext += `PESAN DARI USER:\n${text}`;
 
     let publicImageUrl = null;
     if (msg.photo) {
@@ -193,7 +178,7 @@ bot.on('message', async (msg) => {
       const buffer = Buffer.from(arrayBuffer);
       
       const imageParts = [{ inlineData: { data: buffer.toString("base64"), mimeType: "image/jpeg" } }];
-      const prompt = `Analisa gambar struk/bukti transfer ini dan catat transaksinya. \\n${historyContext}`;
+      const prompt = `Analisa gambar struk/bukti transfer ini dan catat transaksinya. \n${historyContext}`;
       const result = await model.generateContent([prompt, ...imageParts]);
       aiResponse = result.response.text();
 
@@ -226,12 +211,12 @@ bot.on('message', async (msg) => {
       const cleanJson = aiResponse.replace(/```json/g, '').replace(/```/g, '').trim();
       parsedData = JSON.parse(cleanJson);
     } catch (e) {
-      bot.sendMessage(chatId, "❌ Maaf, saya tidak mengerti. Coba gunakan kalimat yang lebih jelas.");
+      await bot.sendMessage(chatId, "❌ Maaf, saya tidak mengerti. Coba gunakan kalimat yang lebih jelas.");
       return;
     }
 
     if (parsedData.action === 'chat' || !parsedData.transaction_data || !parsedData.transaction_data.amount) {
-      bot.sendMessage(chatId, parsedData.reply || "Saya tidak menemukan data yang relevan.");
+      await bot.sendMessage(chatId, parsedData.reply || "Saya tidak menemukan data yang relevan.");
       return;
     }
 
@@ -261,22 +246,21 @@ bot.on('message', async (msg) => {
     const icon = transactionData.type === 'pemasukan' ? '🟢' : '🔴';
     const reply = `✅ *Transaksi Berhasil Dicatat!*\n\n${icon} Tipe: ${transactionData.type}\n💰 Nominal: ${formatter.format(transactionData.amount)}\n📁 Kategori: ${dataToSave.category}\n📝 Catatan: ${dataToSave.note}`;
     
-    bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
+    await bot.sendMessage(chatId, reply, { parse_mode: 'Markdown' });
   } catch (error) {
-    console.error("Transaction Error:", error);
-    bot.sendMessage(chatId, "❌ Terjadi kesalahan saat memproses pesan.");
+    console.error("Handler Error:", error);
+    await bot.sendMessage(chatId, "❌ Terjadi kesalahan saat memproses pesan.");
   }
-});
+}
 
 // VERCEL SERVERLESS HANDLER
 module.exports = async (request, response) => {
   try {
-    // Pastikan request adalah method POST
     if (request.method === 'POST') {
       const { body } = request;
-      // Proses webhook yang dikirim dari Telegram ke dalam event listener Bot
       if (body) {
-        bot.processUpdate(body);
+        // TUNGGU PROSES SELESAI SEBELUM MENGIRIM RESPONSE 200 OK
+        await handleUpdate(body);
       }
     }
     response.status(200).send('OK');
