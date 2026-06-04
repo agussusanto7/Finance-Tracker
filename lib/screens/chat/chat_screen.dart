@@ -224,8 +224,9 @@ class _ChatScreenState extends State<ChatScreen> {
         final note = (tx.note?.isNotEmpty ?? false)
             ? ' (Catatan: ${tx.note})'
             : '';
+        final timeStr = '${tx.date.hour.toString().padLeft(2, '0')}:${tx.date.minute.toString().padLeft(2, '0')}';
         contextStr +=
-            "- [${tx.date.toString().substring(0, 10)}] ${tx.category} ($type): $amt$note\n";
+            "- [${tx.date.toString().substring(0, 10)} $timeStr] ${tx.category} ($type): $amt$note\n";
       }
     }
 

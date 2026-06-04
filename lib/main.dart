@@ -14,6 +14,7 @@ import 'providers/user_provider.dart';
 import 'providers/theme_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home/main_screen.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +32,10 @@ void main() async {
   );
   
   await initializeDateFormatting('id_ID');
+  
+  // Initialize notifications
+  await NotificationService().init();
+
   runApp(const MyApp());
 }
 

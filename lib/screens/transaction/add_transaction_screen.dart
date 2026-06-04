@@ -88,8 +88,38 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       lastDate: DateTime(2101),
     );
     if (picked != null && mounted) {
+      // Setelah pilih tanggal, tampilkan time picker untuk memilih jam
+      final TimeOfDay? pickedTime = await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.fromDateTime(_selectedDate),
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+            child: child!,
+          );
+        },
+      );
       setState(() {
-        _selectedDate = picked;
+        if (pickedTime != null) {
+          // Gabungkan tanggal + jam yang dipilih
+          _selectedDate = DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            pickedTime.hour,
+            pickedTime.minute,
+          );
+        } else {
+          // Jika user skip time picker, gunakan jam saat ini
+          final now = DateTime.now();
+          _selectedDate = DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            now.hour,
+            now.minute,
+          );
+        }
       });
     }
   }
@@ -888,7 +918,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Tanggal Transaksi',
+                          'Tanggal & Jam Transaksi',
                           style: TextStyle(
                             fontSize: sw * 0.028,
                             color: labelColor,
@@ -898,7 +928,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         ),
                         SizedBox(height: sw * 0.008),
                         Text(
-                          DateFormatter.formatDate(_selectedDate),
+                          DateFormatter.formatDateTime(_selectedDate),
                           style: TextStyle(
                             fontSize: sw * 0.038,
                             fontWeight: FontWeight.w600,

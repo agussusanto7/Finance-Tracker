@@ -11,6 +11,8 @@ import '../../providers/theme_provider.dart';
 import '../budget/budget_screen.dart';
 import '../gallery/gallery_screen.dart';
 import '../category/category_screen.dart';
+import '../report/monthly_report_screen.dart';
+import 'notification_settings_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -244,6 +246,29 @@ class SettingsScreen extends StatelessWidget {
             ),
             const Divider(height: 1),
             ListTile(
+              leading: SvgPicture.asset(
+                'assets/svg/chart-analysis-svgrepo-com.svg',
+                width: 28,
+                height: 28,
+                colorFilter: ColorFilter.mode(
+                  isDarkMode ? Colors.white70 : AppConstants.textSecondary,
+                  BlendMode.srcIn,
+                ),
+              ),
+              title: const Text('Laporan Keuangan'),
+              subtitle: const Text('Ringkasan bulanan & export PDF'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MonthlyReportScreen(),
+                  ),
+                );
+              },
+            ),
+            const Divider(height: 1),
+            ListTile(
               leading: SvgPicture.asset('assets/svg/icons8-ios-photos.svg', width: 28, height: 28),
               title: const Text('Galeri Bukti Transaksi'),
               trailing: const Icon(Icons.chevron_right),
@@ -263,6 +288,20 @@ class SettingsScreen extends StatelessWidget {
           title: 'Lainnya',
           isDarkMode: isDarkMode,
           children: [
+            ListTile(
+              leading: const Icon(Icons.notifications_active_outlined),
+              title: const Text('Pengingat Transaksi'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationSettingsScreen(),
+                  ),
+                );
+              },
+            ),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.info_outline),
               title: const Text('Tentang Aplikasi'),
