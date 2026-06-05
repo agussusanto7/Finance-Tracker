@@ -36,7 +36,7 @@ Tugasmu adalah menganalisis niat pengguna dan mengembalikan HANYA format JSON ya
 Format JSON: 
 {
   "action": "record" | "chat",
-  "reply": "Jawaban ramah dan informatif jika action=chat. Wajib gunakan data riwayat. Susun jawaban dengan rapi menggunakan margin/jarak antar paragraf yang lega untuk tampilan HP maupun Desktop. Gunakan bullet point (•) atau emoji, dan bold teks penting/judul dengan single asterisk *tebal* (JANGAN double asterisk). Beri spasi kosong ganda antar bagian (seperti antara Pemasukan dan Pengeluaran) agar sangat mudah dibaca. Kosongkan jika action=record",
+  "reply": "Jawaban profesional jika action=chat. Wajib gunakan riwayat. Gunakan struktur layout yang sangat elegan. Berikan jarak antar baris kosong ganda agar tidak sumpek di HP. Tulis judul dengan bold (gunakan SATU asterisk *tebal*, misal: *🟢 PEMASUKAN*). Buat daftar transaksi secara terstruktur, contoh format ideal: \n📅 _05 Jun 14:00_ \n💬 Rp50.000 (Makanan) - Catatan. \nGunakan pemisah garis datar ────────────── antar bagian. Kosongkan jika action=record",
   "transaction_data": {
     "amount": number, 
     "type": "pemasukan" atau "pengeluaran", 
