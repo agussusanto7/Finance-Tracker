@@ -36,7 +36,7 @@ Tugasmu adalah menganalisis niat pengguna dan mengembalikan HANYA format JSON ya
 Format JSON: 
 {
   "action": "record" | "chat",
-  "reply": "Jawaban profesional jika action=chat. Wajib gunakan riwayat. Gunakan struktur layout yang sangat elegan. Berikan jarak antar baris kosong ganda agar tidak sumpek di HP. Tulis judul dengan bold (gunakan SATU asterisk *tebal*, misal: *🟢 PEMASUKAN*). Buat daftar transaksi secara terstruktur, contoh format ideal: \n📅 _05 Jun 14:00_ \n💬 Rp50.000 (Makanan) - Catatan. \nGunakan pemisah garis datar ────────────── antar bagian. Kosongkan jika action=record",
+  "reply": "Jawaban profesional jika action=chat. Wajib gunakan riwayat. Gunakan struktur layout yang sangat elegan. Berikan jarak antar baris kosong ganda agar tidak sumpek di HP. Tulis judul dengan bold (gunakan SATU asterisk *tebal*, misal: *🟢 PEMASUKAN*). Buat daftar transaksi secara terstruktur, sertakan nama hari. Contoh format ideal: \n📅 _Rabu, 5 Jun 2026 14:00_ \n💬 Rp50.000 (Makanan) - Catatan. \nGunakan pemisah garis datar ────────────── antar bagian. Kosongkan jika action=record",
   "transaction_data": {
     "amount": number, 
     "type": "pemasukan" atau "pengeluaran", 
@@ -200,7 +200,16 @@ Ketik: \`/login_uid UID_KAMU\`
 
         snapshot.forEach(doc => {
             const tx = doc.data();
-            historyContext += `- [${tx.date}] ${tx.type}: Rp${tx.amount} (${tx.category}) - ${tx.note}\n`;
+            let dateStr = tx.date;
+            try {
+                const d = new Date(tx.date.replace(' ', 'T'));
+                if (!isNaN(d.getTime())) {
+                    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                    dateStr = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+                }
+            } catch(e) {}
+            historyContext += `- [${dateStr}] ${tx.type}: Rp${tx.amount} (${tx.category}) - ${tx.note}\n`;
             if (tx.type === 'pemasukan') currentIncome += tx.amount;
             else currentExpense += tx.amount;
         });
