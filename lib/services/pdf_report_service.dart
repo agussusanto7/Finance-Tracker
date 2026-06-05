@@ -532,7 +532,7 @@ class PdfReportService {
                     decoration: pw.BoxDecoration(color: rowColor),
                     children: [
                       _tableCell(
-                        DateFormat('dd/MM/yyyy', 'id_ID').format(t.date),
+                        DateFormat('dd/MM/yyyy HH:mm', 'id_ID').format(t.date),
                         darkText,
                       ),
                       _tableCell(t.category, darkText),
