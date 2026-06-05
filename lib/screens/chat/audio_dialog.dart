@@ -282,7 +282,7 @@ class _AudioDialogScreenState extends State<AudioDialogScreen>
             ? ' (Catatan: ${tx.note})'
             : '';
         contextStr +=
-            "- [${tx.date.toString().substring(0, 10)}] ${tx.category} ($type): $amt$note\n";
+            "- [${tx.date.toString().substring(0, 16)}] ${tx.category} ($type): $amt$note\n";
       }
     }
 
