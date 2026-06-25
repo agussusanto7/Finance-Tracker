@@ -103,7 +103,7 @@ Ketik: \`/login_uid UID_KAMU\`
             return;
         }
 
-        // 3. COMMAND /logout
+        // 3. COMMAND /logoutttttttttttttt
         if (text.startsWith('/logout')) {
             await db.collection('telegram_sessions').doc(chatId.toString()).delete();
             await bot.sendMessage(chatId, "✅ Berhasil logout dari bot Telegram.");
@@ -208,7 +208,7 @@ Ketik: \`/login_uid UID_KAMU\`
                     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                     dateStr = `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
                 }
-            } catch(e) {}
+            } catch (e) {}
             historyContext += `- [${dateStr}] ${tx.type}: Rp${tx.amount} (${tx.category}) - ${tx.note}\n`;
             if (tx.type === 'pemasukan') currentIncome += tx.amount;
             else currentExpense += tx.amount;
