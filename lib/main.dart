@@ -12,6 +12,7 @@ import 'providers/budget_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/user_provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/saved_video_provider.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home/main_screen.dart';
 import 'services/notification_service.dart';
@@ -51,6 +52,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => SavedVideoProvider()),
       ],
       child: Consumer2<UserProvider, ThemeProvider>(
         builder: (context, userProvider, themeProvider, child) {

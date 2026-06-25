@@ -13,6 +13,7 @@ import '../gallery/gallery_screen.dart';
 import '../category/category_screen.dart';
 import '../report/monthly_report_screen.dart';
 import 'notification_settings_screen.dart';
+import 'saved_video_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -288,6 +289,19 @@ class SettingsScreen extends StatelessWidget {
           title: 'Lainnya',
           isDarkMode: isDarkMode,
           children: [
+            ListTile(
+              leading: const Icon(Icons.video_library_outlined),
+              title: const Text('Video Tersimpan'),
+              subtitle: const Text('Video edukasi YouTube'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SavedVideoScreen()),
+                );
+              },
+            ),
+            const Divider(height: 1),
             ListTile(
               leading: const Icon(Icons.notifications_active_outlined),
               title: const Text('Pengingat Transaksi'),
