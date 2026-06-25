@@ -12,6 +12,7 @@ import '../chat/chat_screen.dart';
 import '../transaction/add_transaction_screen.dart';
 import '../budget/budget_screen.dart';
 import '../home/main_screen.dart';
+import '../education/education_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -465,6 +466,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const BudgetScreen()),
+                    );
+                  },
+                ),
+              ),
+              Expanded(
+                child: _buildQuickActionButton(
+                  context: context,
+                  icon: Icons.play_circle_fill_rounded,
+                  label: 'Edukasi',
+                  color: Colors.redAccent,
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const EducationScreen()),
                     );
                   },
                 ),
