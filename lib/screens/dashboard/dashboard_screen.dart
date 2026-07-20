@@ -287,11 +287,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           transactionProvider.getTotalIncomeByMonth(DateTime.now()),
                       balanceHidden: balanceHidden,
                     ),
+                    const SizedBox(width: 12),
                     Container(
                       width: 1,
                       height: 40,
                       color: Colors.white.withOpacity(0.25),
                     ),
+                    const SizedBox(width: 12),
                     _buildBalanceItem(
                       icon: Icons.arrow_upward_rounded,
                       label: 'Pengeluaran',
@@ -520,16 +522,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 child: Icon(icon, color: color, size: MediaQuery.of(context).size.width < 360 ? 28 : 32),
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width < 360 ? 12 : 14,
-                      fontWeight: FontWeight.w600,
-                      color: textPrimary,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.width < 360 ? 9 : 11,
+                        fontWeight: FontWeight.w600,
+                        color: textPrimary,
+                      ),
                     ),
                   ),
                 ),
@@ -575,24 +580,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       fontSize: MediaQuery.of(context).size.width < 360 ? 16 : 18,
                       fontWeight: FontWeight.w800,
                       color: textPrimary,
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppConstants.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      'Bulan ini',
-                      style: TextStyle(
-                        color: AppConstants.primaryColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
                     ),
                   ),
                 ],

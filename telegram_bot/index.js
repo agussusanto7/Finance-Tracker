@@ -285,12 +285,11 @@ bot.on('message', async (msg) => {
     const now = new Date();
     const pad = (n) => n.toString().padStart(2, '0');
     const dateFormatted = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    const dateForId = `${now.getFullYear()}${pad(now.getMonth()+1)}${pad(now.getDate())}_${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
 
-    const newTxRef = userTransactionsRef.doc();
-    
-    // Format ID seperti di aplikasi Flutter
+    // Format ID dengan tahun, bulan, tanggal, jam, menit, detik
     const prefix = transactionData.type === 'pemasukan' ? 'pemasukan' : 'pengeluaran';
-    const docId = `${prefix}_${newTxRef.id}`;
+    const docId = `${prefix}_${dateForId}`;
 
     const dataToSave = {
       id: docId,
